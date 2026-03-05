@@ -2,17 +2,21 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.join(__dirname, '../../.env') });
+
+// Helper to safely read env vars (trim whitespace/newlines)
+const env = (key: string, fallback: string): string => (process.env[key] || fallback).trim();
+
 export const config = {
-    port: parseInt(process.env.PORT || '4000', 10),
-    nodeEnv: process.env.NODE_ENV || 'development',
-    corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    port: parseInt(env('PORT', '4000'), 10),
+    nodeEnv: env('NODE_ENV', 'development'),
+    corsOrigin: env('CORS_ORIGIN', 'http://localhost:3000'),
     jwt: {
-        secret: process.env.JWT_SECRET || 'dev-secret-change-me',
-        refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret-change-me',
-        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
-        refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+        secret: env('JWT_SECRET', 'dev-secret-change-me'),
+        refreshSecret: env('JWT_REFRESH_SECRET', 'dev-refresh-secret-change-me'),
+        expiresIn: env('JWT_EXPIRES_IN', '15m'),
+        refreshExpiresIn: env('JWT_REFRESH_EXPIRES_IN', '7d'),
     },
     database: {
-        url: process.env.DATABASE_URL || 'postgresql://abogados_user:abogados_pass@localhost:5432/abogados_db',
+        url: env('DATABASE_URL', 'postgresql://abogados_user:abogados_pass@localhost:5432/abogados_db'),
     },
 };
