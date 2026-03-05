@@ -97,7 +97,7 @@ router.post('/register', asyncHandler(async (req: Request, res: Response) => {
             passwordHash,
             name: data.name,
             role: data.role,
-            emailVerified: false, // Ahora es obligatorio verificar
+            emailVerified: true, // Auto-verificado para pruebas por ahora
             verificationToken,
         },
         select: { id: true, email: true, name: true, role: true, createdAt: true },
