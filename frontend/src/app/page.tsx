@@ -396,7 +396,7 @@ export default function LandingPage() {
                                     marginBottom: '1.5rem', flexShrink: 0
                                 }}>
                                     {/* Clone SVG to change stroke to white for high contrast */}
-                                    {React.cloneElement(item.icon as React.ReactElement, { stroke: C.white, width: 34, height: 34, strokeWidth: 2.5 })}
+                                    {React.cloneElement(item.icon as React.ReactElement<any>, { stroke: C.white, width: 34, height: 34, strokeWidth: 2.5 })}
                                 </div>
                                 <h3 style={{ fontSize: '1.3rem', marginBottom: '0.6rem', color: C.navyDeep, fontWeight: 800 }}>{item.title}</h3>
                                 <div style={{ marginBottom: '1.2rem' }}>

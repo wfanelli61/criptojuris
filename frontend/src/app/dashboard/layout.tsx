@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useGlobalSocket } from '@/contexts/SocketContext';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     const { user, loading, logout } = useAuth();
     const { unreadCount, clearUnread } = useGlobalSocket();
     const router = useRouter();
@@ -286,5 +286,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 )}
             </div>
         </div>
+    );
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <Suspense fallback={<div style={{ padding: '4rem' }}><div className="spinner" /></div>}>
+            <DashboardLayoutInner>{children}</DashboardLayoutInner>
+        </Suspense>
     );
 }
