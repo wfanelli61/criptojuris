@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-echo "=== Installing dependencies ==="
-npm install
+echo "=== Installing dependencies (including dev for TypeScript) ==="
+npm install --include=dev
 
 echo "=== Generating Prisma Client ==="
 npx prisma generate
