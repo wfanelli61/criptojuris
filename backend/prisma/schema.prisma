@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
+  role              String    @default("CLIENTE")
+  name              String
+  phone             String?
+  emailVerified     Boolean   @default(false)
+  verificationToken String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  lawyerProfile      LawyerProfile?
+  clientAppointments AppointmentRequest[] @relation("ClientAppointments")
+  lawyerAppointments AppointmentRequest[] @relation("LawyerAppointments")
+  conversations      Conversation[]       @relation("UserConversations")
+  messages           Message[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model LawyerProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  bio                String?
+  specialties        String   @default("[]")
+  city               String?
+  languages          String   @default("[]")
+  ratePerHour        Float?
+  photoUrl           String?
+  yearsExperience    Int?
+  active             Boolean  @default(true)
+  verificationStatus String   @default("NONE") // NONE, PENDING, APPROVED, REJECTED
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verification LawyerVerification?
+}
+
+model LawyerVerification {
+  id               String   @id @default(cuid())
+  lawyerProfileId  String   @unique
+  
+  // Datos Personales
+  dni              String
+  collegeId        String
+  collegeName      String
+  country          String
+  city             String
+  gradYear         Int
+  university       String
+  phone            String
+  email            String
+  
+  // Especialización
+  specialties      String   @default("[]")
+  mainExpYears     Int
+  postgrad         String
+  
+  // Experiencia
+  totalYears       Int
+  firms            String?
+  companies        String?
+  casesLast3Years  Int
+  complexCaseStory String
+  
+  // Evaluación
+  conflictHandling String
+  ethicsResponse   String
+  feeStructure     String
+  updateMethod     String
+  
+  // Referencias
+  linkedin         String?
+  website          String?
+  references       String   @default("[]")
+  hasSanctions     Boolean
+  sanctionExpl     String?
+  
+  // Disponibilidad
+  modality         String
+  responseTime     String
+  firstConsultFree Boolean
+  languages        String   @default("[]")
+  availability     String
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  lawyerProfile LawyerProfile @relation(fields: [lawyerProfileId], references: [id], onDelete: Cascade)
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  appointments AppointmentRequest[]
+}
+
+model Testimonial {
+  id         String   @id @default(cuid())
+  clientName String
+  clientRole String?
+  rating     Int      @default(5)
+  content    String
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model AppointmentRequest {
+  id            String    @id @default(cuid())
+  clientId      String
+  lawyerId      String?
+  serviceId     String
+  message       String?
+  preferredDate DateTime?
+  status        String    @default("PENDIENTE")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  client  User    @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: Cascade)
+  lawyer  User?   @relation("LawyerAppointments", fields: [lawyerId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
+
+  @@index([clientId])
+  @@index([lawyerId])
+  @@index([serviceId])
+  @@index([status])
+}
+
+model Conversation {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  participants User[]    @relation("UserConversations")
+  messages     Message[]
+
+  @@index([createdAt])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  fileUrl        String?
+  fileName       String?
+  fileSize       Int?
+  fileType       String?
+  createdAt      DateTime @default(now())
+  isRead         Boolean  @default(false)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id])
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}

@@ -1,0 +1,983 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
+
+/* ============================
+   DESIGN TOKENS - BUFETE LEGAL
+   VIBRANT + DYNAMIC PALETTE
+   ============================ */
+:root {
+  /* Colors - Primary Deep Blue */
+  --color-primary: #0C2340;
+  --color-primary-light: #1B4D8F;
+  --color-primary-dark: #060F1D;
+  --color-primary-50: #E8EFF8;
+  --color-primary-100: #B8CCE6;
+  --color-primary-200: #6B94C7;
+
+  /* Gold Accent - More Vibrant */
+  --color-gold: #F0B429;
+  --color-gold-light: #F7D070;
+  --color-gold-dark: #C68A0A;
+  --color-gold-glow: rgba(240, 180, 41, 0.4);
+
+  /* Vivid Accents */
+  --color-accent-teal: #13C4A3;
+  --color-accent-purple: #7C3AED;
+  --color-accent-coral: #FF6B6B;
+  --color-accent-cyan: #06B6D4;
+  --color-accent-rose: #F43F5E;
+
+  /* Neutrals */
+  --color-white: #FFFFFF;
+  --color-bg: #F0F2F7;
+  --color-bg-alt: #E5E9F0;
+  --color-text: #0B1120;
+  --color-text-light: #4B5563;
+  --color-text-muted: #9CA3AF;
+  --color-border: #E2E5EE;
+  --color-border-light: #F1F3F8;
+
+  /* Status */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+
+  /* Typography */
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.15), 0 12px 16px rgba(0, 0, 0, 0.08);
+  --shadow-gold: 0 6px 24px rgba(240, 180, 41, 0.35);
+  --shadow-glow: 0 0 40px rgba(240, 180, 41, 0.25);
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-bg-light: rgba(255, 255, 255, 0.72);
+  --glass-border-light: rgba(255, 255, 255, 0.6);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================
+   GLOBAL STYLES
+   ============================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.main-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  line-height: 1.15;
+  color: var(--color-white);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ============================
+   FOCUS STYLES (Accessibility)
+   ============================ */
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ============================
+   BUTTON STYLES
+   ============================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 2rem;
+  border-radius: var(--radius-xl);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  line-height: 1.4;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark));
+  color: var(--color-white);
+  box-shadow: var(--shadow-gold);
+  letter-spacing: 0.02em;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
+  box-shadow: 0 8px 32px rgba(240, 180, 41, 0.45);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: var(--color-white);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.btn-secondary:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
+  transform: translateY(-2px);
+}
+
+.btn-outline-gold {
+  background: transparent;
+  color: var(--color-gold);
+  border: 2px solid var(--color-gold);
+}
+
+.btn-outline-gold:hover {
+  background: var(--color-gold);
+  color: var(--color-primary-dark);
+  box-shadow: var(--shadow-gold);
+  transform: translateY(-2px);
+}
+
+.btn-sm {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-lg);
+}
+
+.btn-lg {
+  padding: 1.1rem 3rem;
+  font-size: 1.1rem;
+  border-radius: var(--radius-xl);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--color-error), #DC2626);
+  color: var(--color-white);
+}
+
+.btn-danger:hover {
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--color-success), #059669);
+  color: var(--color-white);
+}
+
+.btn-success:hover {
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ============================
+   GLASSMORPHISM CARD STYLES
+   ============================ */
+.card {
+  background: var(--glass-bg-light);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-lg);
+  transition: all var(--transition-base);
+  border: 1px solid var(--color-border-light);
+  position: relative;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-6px);
+  border-color: rgba(240, 180, 41, 0.3);
+}
+
+.card-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+}
+
+/* ============================
+   FORM STYLES
+   ============================ */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: var(--space-md);
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.form-input {
+  padding: 0.8rem 1.1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  transition: all var(--transition-fast);
+  background: var(--color-white);
+  color: var(--color-text);
+}
+
+.form-input:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 4px var(--color-gold-glow);
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ============================
+   BADGE / STATUS STYLES
+   ============================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.badge-pendiente {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  color: #92400E;
+}
+
+.badge-confirmada {
+  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+  color: #065F46;
+}
+
+.badge-cancelada {
+  background: linear-gradient(135deg, #FEE2E2, #FECACA);
+  color: #991B1B;
+}
+
+.badge-finalizada {
+  background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+  color: #1E40AF;
+}
+
+/* ============================
+   TABLE STYLES
+   ============================ */
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table th {
+  background: linear-gradient(180deg, var(--color-primary-50), var(--color-bg));
+  padding: 1rem 1.1rem;
+  text-align: left;
+  font-weight: 700;
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-border);
+  white-space: nowrap;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.table td {
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: all var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background: var(--color-primary-50);
+}
+
+/* ============================
+   SECTION STYLES
+   ============================ */
+.section {
+  padding: 5rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-section {
+  padding: 5rem 1.5rem;
+  width: 100%;
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+  margin-bottom: 0.75rem;
+  color: var(--color-gold);
+  font-weight: 700;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.section-subtitle {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.15rem;
+  max-width: 600px;
+  margin: 0 auto var(--space-xl) auto;
+  line-height: 1.7;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ============================
+   STAR RATING
+   ============================ */
+.stars {
+  color: var(--color-gold);
+  font-size: 1.15rem;
+  letter-spacing: 3px;
+}
+
+/* ============================
+   SCROLL REVEAL - SPRING PHYSICS
+   ============================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(60px) scale(0.95);
+  transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-80px) rotate(-2deg);
+  transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0) rotate(0deg);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(80px) rotate(2deg);
+  transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0) rotate(0deg);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.7) rotateX(15deg);
+  transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1) rotateX(0deg);
+}
+
+/* Bounce up reveal for high impact */
+.reveal-bounce {
+  opacity: 0;
+  transform: translateY(100px) scale(0.8);
+  transition: all 1s cubic-bezier(0.34, 1.8, 0.64, 1);
+}
+
+.reveal-bounce.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Elastic pop reveal */
+.reveal-pop {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.reveal-pop.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Staggered children animation */
+.stagger-children>* {
+  opacity: 0;
+  transform: translateY(40px) scale(0.92);
+  transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.stagger-children.visible>*:nth-child(1) {
+  transition-delay: 0ms;
+  opacity: 1;
+  transform: none;
+}
+
+.stagger-children.visible>*:nth-child(2) {
+  transition-delay: 100ms;
+  opacity: 1;
+  transform: none;
+}
+
+.stagger-children.visible>*:nth-child(3) {
+  transition-delay: 200ms;
+  opacity: 1;
+  transform: none;
+}
+
+.stagger-children.visible>*:nth-child(4) {
+  transition-delay: 300ms;
+  opacity: 1;
+  transform: none;
+}
+
+.stagger-children.visible>*:nth-child(5) {
+  transition-delay: 400ms;
+  opacity: 1;
+  transform: none;
+}
+
+.stagger-children.visible>*:nth-child(6) {
+  transition-delay: 500ms;
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================
+   WAVE DIVIDERS
+   ============================ */
+.wave-divider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  margin-top: -1px;
+}
+
+.wave-divider svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 80px;
+}
+
+.wave-divider .wave-path {
+  animation: waveFlow 4s ease-in-out infinite alternate;
+}
+
+.wave-divider .wave-path-2 {
+  animation: waveFlow2 5s ease-in-out infinite alternate;
+  opacity: 0.5;
+}
+
+.wave-divider .wave-path-3 {
+  animation: waveFlow3 6s ease-in-out infinite alternate;
+  opacity: 0.3;
+}
+
+@keyframes waveFlow {
+  0% {
+    d: path("M0,40 C200,80 400,0 600,40 C800,80 1000,0 1200,40 L1200,80 L0,80 Z");
+  }
+
+  100% {
+    d: path("M0,50 C200,10 400,70 600,30 C800,60 1000,20 1200,50 L1200,80 L0,80 Z");
+  }
+}
+
+@keyframes waveFlow2 {
+  0% {
+    d: path("M0,50 C150,20 350,70 550,30 C750,60 950,20 1200,50 L1200,80 L0,80 Z");
+  }
+
+  100% {
+    d: path("M0,30 C250,70 450,10 650,50 C850,20 1050,60 1200,30 L1200,80 L0,80 Z");
+  }
+}
+
+@keyframes waveFlow3 {
+  0% {
+    d: path("M0,60 C300,20 500,70 700,30 C900,60 1100,20 1200,60 L1200,80 L0,80 Z");
+  }
+
+  100% {
+    d: path("M0,40 C200,70 400,20 600,60 C800,30 1000,70 1200,40 L1200,80 L0,80 Z");
+  }
+}
+
+/* Glow line between sections */
+.section-glow-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #E88C2A, #F5A623, #FFC266, #F5A623, #E88C2A, transparent);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    filter: blur(0px);
+  }
+
+  50% {
+    opacity: 1;
+    filter: blur(2px);
+  }
+}
+
+/* ============================
+   ANIMATED GRADIENT BACKGROUND
+   ============================ */
+.animated-gradient {
+  background: linear-gradient(-45deg, #0C2340, #1B4D8F, #0C2340, #13233F);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ============================
+   FLOATING PARTICLES
+   ============================ */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleFloat linear infinite;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ============================
+   PHYSICS CAROUSEL STYLES
+   ============================ */
+.physics-carousel {
+  cursor: grab;
+  user-select: none;
+  overflow: hidden;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
+.physics-carousel:active {
+  cursor: grabbing;
+}
+
+.physics-carousel-track {
+  display: flex;
+  gap: 1.5rem;
+  transition: none;
+  will-change: transform;
+}
+
+.physics-carousel-item {
+  flex-shrink: 0;
+  width: 320px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+}
+
+.physics-carousel-item:hover {
+  transform: scale(1.04) !important;
+}
+
+.physics-carousel-item.active {
+  transform: scale(1.05);
+  z-index: 2;
+}
+
+/* ============================
+   GLOW EFFECTS
+   ============================ */
+.glow-gold {
+  box-shadow: 0 0 20px var(--color-gold-glow),
+    0 0 60px rgba(240, 180, 41, 0.15);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(27, 77, 143, 0.3),
+    0 0 60px rgba(27, 77, 143, 0.15);
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold), var(--color-gold-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-blue {
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================
+   ANIMATED BLOB
+   ============================ */
+.blob {
+  position: absolute;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  filter: blur(60px);
+  opacity: 0.5;
+  animation: blobMorph 8s ease-in-out infinite alternate;
+}
+
+@keyframes blobMorph {
+  0% {
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    transform: rotate(0deg) scale(1);
+  }
+
+  33% {
+    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+    transform: rotate(60deg) scale(1.1);
+  }
+
+  66% {
+    border-radius: 50% 50% 30% 70% / 60% 40% 60% 40%;
+    transform: rotate(120deg) scale(0.95);
+  }
+
+  100% {
+    border-radius: 30% 70% 40% 60% / 50% 60% 40% 50%;
+    transform: rotate(180deg) scale(1.05);
+  }
+}
+
+/* ============================
+   COUNTER ANIMATION
+   ============================ */
+.counter-number {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================
+   MESH GRADIENT
+   ============================ */
+.mesh-gradient {
+  background:
+    radial-gradient(at 20% 20%, rgba(19, 196, 163, 0.12) 0px, transparent 50%),
+    radial-gradient(at 80% 10%, rgba(240, 180, 41, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(124, 58, 237, 0.08) 0px, transparent 50%),
+    var(--color-bg);
+}
+
+/* ============================
+   KEYFRAME ANIMATIONS
+   ============================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rotateGlow {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 33%, rgba(255, 255, 255, 0.3) 50%, transparent 66%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+/* ============================
+   TICKER / MARQUEE
+   ============================ */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-content {
+  display: inline-flex;
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ============================
+   LOADING SPINNER
+   ============================ */
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--color-border);
+  border-top: 4px solid var(--color-gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 2rem auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================
+   RESPONSIVE
+   ============================ */
+@media (max-width: 768px) {
+  .section {
+    padding: 3.5rem 1rem;
+  }
+
+  .physics-carousel-item {
+    width: 280px;
+  }
+}
