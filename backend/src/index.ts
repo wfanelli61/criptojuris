@@ -76,6 +76,7 @@ app.use(errorHandler);
 httpServer.listen(config.port, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${config.port}`);
     console.log(`📋 Entorno: ${config.nodeEnv}`);
+    console.log(`🔒 Orígenes CORS permitidos: ${Array.isArray(config.corsOrigin) ? config.corsOrigin.join(', ') : config.corsOrigin}`);
 });
 
 export default app;
