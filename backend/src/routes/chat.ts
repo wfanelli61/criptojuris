@@ -176,7 +176,7 @@ router.post('/conversations/:id/upload', authenticate, upload.single('file'), as
         // Crear mensaje con el archivo
         const newMessage = await prisma.message.create({
             data: {
-                conversationId: id,
+                conversationId: id as string,
                 senderId: userId,
                 content: `Archivo adjunto: ${file.originalname}`,
                 fileUrl: `/uploads/chat/${file.filename}`,
@@ -193,7 +193,7 @@ router.post('/conversations/:id/upload', authenticate, upload.single('file'), as
 
         // Actualizar timestamp de la conversación
         await prisma.conversation.update({
-            where: { id },
+            where: { id: id as string },
             data: { updatedAt: new Date() }
         });
 
