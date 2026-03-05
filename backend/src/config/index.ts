@@ -9,7 +9,11 @@ const env = (key: string, fallback: string): string => (process.env[key] || fall
 export const config = {
     port: parseInt(env('PORT', '4000'), 10),
     nodeEnv: env('NODE_ENV', 'development'),
-    corsOrigin: env('CORS_ORIGIN', 'http://localhost:3000'),
+    // Support multiple origins separated by commas
+    corsOrigin: env('CORS_ORIGIN', 'http://localhost:3000')
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(origin => origin.length > 0),
     jwt: {
         secret: env('JWT_SECRET', 'dev-secret-change-me'),
         refreshSecret: env('JWT_REFRESH_SECRET', 'dev-refresh-secret-change-me'),
