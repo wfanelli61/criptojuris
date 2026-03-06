@@ -116,8 +116,8 @@ router.post('/register', asyncHandler(async (req: Request, res: Response) => {
         });
     }
 
-    // Send verification email
-    await sendVerificationEmail(data.email, data.name, verificationToken);
+    // Send verification email (fire-and-forget, don't block registration)
+    sendVerificationEmail(data.email, data.name, verificationToken);
 
     res.status(201).json({
         message: 'Registro exitoso. Tu cuenta ha sido auto-verificada para pruebas.',
