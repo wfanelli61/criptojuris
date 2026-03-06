@@ -41,7 +41,9 @@ function setTokenCookies(res: Response, accessToken: string, refreshToken: strin
 
 // Send verification email
 async function sendVerificationEmail(email: string, name: string, token: string) {
-    const verifyUrl = `${config.corsOrigin}/verificar?token=${token}`;
+    // corsOrigin is an array, use the first one for the verification URL
+    const frontendUrl = Array.isArray(config.corsOrigin) ? config.corsOrigin[0] : config.corsOrigin;
+    const verifyUrl = `${frontendUrl}/verificar?token=${token}`;
 
     try {
         // Dynamically import nodemailer
