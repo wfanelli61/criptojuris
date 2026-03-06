@@ -400,21 +400,13 @@ export default function RegistroPage() {
                             background: 'linear-gradient(135deg, #10B981, #059669)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             margin: '0 auto 1.25rem', fontSize: '1.75rem',
-                        }}>✉️</div>
+                        }}>✅</div>
                         <h2 style={{ fontSize: '1.3rem', color: '#0C2340', marginBottom: '0.75rem', fontFamily: 'var(--font-heading)' }}>
-                            ¡Revisa tu correo!
+                            ¡Registro exitoso!
                         </h2>
                         <p style={{ color: '#4B5563', fontSize: '0.88rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                            Hemos enviado un enlace de verificación a <strong style={{ color: '#0C2340' }}>{email}</strong>.
-                            Haz clic en el enlace para activar tu cuenta.
+                            Tu cuenta ha sido creada correctamente. Ya puedes iniciar sesión con tu correo <strong style={{ color: '#0C2340' }}>{email}</strong>.
                         </p>
-                        <div style={{
-                            padding: '0.75rem', background: '#FEF3C7',
-                            borderRadius: '0.5rem', fontSize: '0.78rem',
-                            color: '#92400E', marginBottom: '1.25rem',
-                        }}>
-                            💡 Si no ves el correo, revisa tu bandeja de spam.
-                        </div>
                         <Link href="/login" className="btn btn-primary" style={{
                             width: '100%', display: 'block', textAlign: 'center',
                             background: 'linear-gradient(135deg, #F0B429, #C68A0A)',

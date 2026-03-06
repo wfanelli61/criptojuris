@@ -92,7 +92,6 @@ router.post('/register', asyncHandler(async (req: Request, res: Response) => {
     }
 
     const passwordHash = await bcrypt.hash(data.password, 12);
-    const verificationToken = crypto.randomUUID();
 
     const user = await prisma.user.create({
         data: {
@@ -100,8 +99,7 @@ router.post('/register', asyncHandler(async (req: Request, res: Response) => {
             passwordHash,
             name: data.name,
             role: data.role,
-            emailVerified: true, // Auto-verificado para pruebas por ahora
-            verificationToken,
+            emailVerified: true, // Auto-verificado (verificación desactivada para pruebas)
         },
         select: { id: true, email: true, name: true, role: true, createdAt: true },
     });
@@ -117,11 +115,11 @@ router.post('/register', asyncHandler(async (req: Request, res: Response) => {
         });
     }
 
-    // Send verification email (fire-and-forget, don't block registration)
-    sendVerificationEmail(data.email, data.name, verificationToken);
+    // TODO: Re-activar envío de email de verificación cuando esté listo
+    // sendVerificationEmail(data.email, data.name, verificationToken);
 
     res.status(201).json({
-        message: 'Registro exitoso. Tu cuenta ha sido auto-verificada para pruebas.',
+        message: 'Registro exitoso. Ya puedes iniciar sesión.',
         requiresVerification: false,
     });
 }));
@@ -158,9 +156,10 @@ router.post('/login', asyncHandler(async (req: Request, res: Response) => {
         throw new AppError('Credenciales inválidas', 401);
     }
 
-    if (!user.emailVerified) {
-        throw new AppError('Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.', 403);
-    }
+    // TODO: Re-activar verificación de email cuando esté listo
+    // if (!user.emailVerified) {
+    //     throw new AppError('Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.', 403);
+    // }
 
     const validPassword = await bcrypt.compare(data.password, user.passwordHash);
     if (!validPassword) {
