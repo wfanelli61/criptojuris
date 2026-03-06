@@ -970,14 +970,111 @@ img {
 }
 
 /* ============================
-   RESPONSIVE
+   RESPONSIVE - MOBILE FIRST
    ============================ */
 @media (max-width: 768px) {
   .section {
-    padding: 3.5rem 1rem;
+    padding: 2.5rem 1rem;
+  }
+
+  .page-section {
+    padding: 2.5rem 0.75rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .section-title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+
+  .section-subtitle {
+    font-size: 0.95rem;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-lg {
+    padding: 0.85rem 2rem;
+    font-size: 1rem;
+  }
+
+  /* Cards */
+  .card {
+    padding: var(--space-md);
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  /* Tables - horizontal scroll */
+  .table-container {
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* Forms */
+  .form-input {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  /* Carousel */
+  .physics-carousel-item {
+    width: 260px;
+  }
+
+  /* Reduce animations on mobile for performance */
+  .reveal,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale,
+  .reveal-bounce,
+  .reveal-pop {
+    transition-duration: 0.5s;
+  }
+
+  .blob {
+    display: none;
+  }
+
+  /* Wave dividers smaller */
+  .wave-divider svg {
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 2rem 0.75rem;
+  }
+
+  .page-section {
+    padding: 2rem 0.5rem;
+  }
+
+  .container {
+    padding: 0 0.75rem;
+  }
+
+  .btn {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.85rem;
   }
 
   .physics-carousel-item {
-    width: 280px;
+    width: 240px;
   }
 }

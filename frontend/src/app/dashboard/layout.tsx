@@ -15,12 +15,18 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     const searchParams = useSearchParams();
     const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
     const [checkingVerification, setCheckingVerification] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         if (!loading && !user) {
             router.push('/login');
         }
     }, [user, loading, router]);
+
+    // Close sidebar on route change (mobile)
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, [pathname]);
 
     // Check verification status for lawyers (with polling every 10s)
     useEffect(() => {
@@ -94,17 +100,41 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     })();
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--color-bg)' }}>
+        <div className="dashboard-layout">
+            {/* Mobile top bar */}
+            <div className="dashboard-topbar">
+                <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    aria-label="Menú"
+                    style={{
+                        background: 'none', border: 'none', color: 'var(--color-white)',
+                        fontSize: '1.4rem', cursor: 'pointer', padding: '0.25rem',
+                    }}
+                >
+                    {sidebarOpen ? '✕' : '☰'}
+                </button>
+                <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--color-white)' }}>
+                    Panel de Control
+                </span>
+                <span style={{
+                    background: 'rgba(212,168,71,0.2)', color: 'var(--color-gold)',
+                    padding: '0.15rem 0.5rem', borderRadius: 'var(--radius-full)',
+                    fontSize: '0.65rem', fontWeight: 600,
+                }}>
+                    {user.role}
+                </span>
+            </div>
+
+            {/* Sidebar overlay (mobile) */}
+            {sidebarOpen && (
+                <div
+                    className="dashboard-overlay"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside style={{
-                width: '260px',
-                background: 'var(--color-primary-dark)',
-                color: 'var(--color-white)',
-                padding: '1.5rem 0',
-                flexShrink: 0,
-                display: 'flex',
-                flexDirection: 'column',
-            }}>
+            <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`}>
                 <div style={{ padding: '0 1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
                         Panel de Control
@@ -144,10 +174,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
                         let isActive;
                         if (hasViewParam) {
-                            // Calendar link: active only when on that path WITH ?view=calendar
                             isActive = pathname === itemPath && currentView === 'calendar';
                         } else if (item.label.includes('Citas')) {
-                            // Citas link: active only when on that path WITHOUT ?view=calendar
                             isActive = (pathname === itemPath || pathname.startsWith(itemPath + '/')) && currentView !== 'calendar';
                         } else {
                             isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -212,42 +240,35 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             </aside>
 
             {/* Main content */}
-            <div style={{ flex: 1, padding: '2rem', overflowX: 'auto' }}>
+            <div className="dashboard-content">
                 {user.role === 'ABOGADO' && verificationStatus === 'PENDING' && pathname !== '/dashboard/verificacion' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
                         <div style={{
-                            background: 'rgba(255,255,255,0.95)', borderRadius: '1.25rem', padding: '3rem 2.5rem',
+                            background: 'rgba(255,255,255,0.95)', borderRadius: '1.25rem', padding: '2rem 1.5rem',
                             boxShadow: '0 8px 32px rgba(0,0,0,0.08)', maxWidth: '500px', width: '100%',
                         }}>
-                            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⏳</div>
-                            <h1 style={{ fontSize: '1.5rem', color: 'var(--color-primary-dark)', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+                            <h1 style={{ fontSize: '1.25rem', color: 'var(--color-primary-dark)', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>
                                 Esperando Verificación
                             </h1>
-                            <p style={{ color: '#6B7280', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                            <p style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
                                 Tu formulario de verificación ha sido enviado exitosamente.
-                                Un administrador lo revisará pronto y te notificará cuando sea aprobado.
+                                Un administrador lo revisará pronto.
                             </p>
-                            <div style={{
-                                padding: '0.75rem 1rem', background: '#FEF3C7', borderRadius: '8px',
-                                color: '#92400E', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            }}>
-                                <span>📋</span>
-                                <span>Tu perfil será visible en la plataforma una vez aprobado.</span>
-                            </div>
                         </div>
                     </div>
                 ) : user.role === 'ABOGADO' && verificationStatus === 'REJECTED' && pathname !== '/dashboard/verificacion' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
                         <div style={{
-                            background: 'rgba(255,255,255,0.95)', borderRadius: '1.25rem', padding: '3rem 2.5rem',
+                            background: 'rgba(255,255,255,0.95)', borderRadius: '1.25rem', padding: '2rem 1.5rem',
                             boxShadow: '0 8px 32px rgba(0,0,0,0.08)', maxWidth: '500px', width: '100%',
                         }}>
-                            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>❌</div>
-                            <h1 style={{ fontSize: '1.5rem', color: '#991B1B', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>❌</div>
+                            <h1 style={{ fontSize: '1.25rem', color: '#991B1B', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>
                                 Verificación Rechazada
                             </h1>
-                            <p style={{ color: '#6B7280', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                                Tu solicitud de verificación fue rechazada. Puedes enviar una nueva solicitud con los datos corregidos.
+                            <p style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                                Tu solicitud fue rechazada. Puedes enviar una nueva solicitud.
                             </p>
                             <a href="/dashboard/verificacion" className="btn btn-primary" style={{ padding: '0.7rem 1.5rem', textDecoration: 'none' }}>
                                 📝 Enviar Nueva Solicitud
@@ -257,25 +278,16 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                 ) : user.role === 'ABOGADO' && verificationStatus === 'APPROVED' && pathname === '/dashboard' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
                         <div style={{
-                            background: 'rgba(255,255,255,0.95)', borderRadius: '1.25rem', padding: '3rem 2.5rem',
+                            background: 'rgba(255,255,255,0.95)', borderRadius: '1.25rem', padding: '2rem 1.5rem',
                             boxShadow: '0 8px 32px rgba(0,0,0,0.08)', maxWidth: '550px', width: '100%',
                         }}>
-                            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
-                            <h1 style={{ fontSize: '1.5rem', color: '#065F46', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+                            <h1 style={{ fontSize: '1.25rem', color: '#065F46', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>
                                 ¡Perfil Verificado!
                             </h1>
-                            <p style={{ color: '#6B7280', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                                Tu solicitud ha sido aprobada por un administrador.
-                                Ahora puedes completar tu perfil profesional para que los clientes puedan encontrarte en nuestra plataforma.
+                            <p style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                                Tu solicitud ha sido aprobada. Completa tu perfil profesional para que los clientes te encuentren.
                             </p>
-                            <div style={{
-                                padding: '0.75rem 1rem', background: '#D1FAE5', borderRadius: '8px',
-                                color: '#065F46', fontSize: '0.8rem', marginBottom: '1.5rem',
-                                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            }}>
-                                <span>✅</span>
-                                <span>Completa tu perfil para ser visible en el sitio web.</span>
-                            </div>
                             <a href="/dashboard/mi-perfil" className="btn btn-primary" style={{ padding: '0.75rem 2rem', textDecoration: 'none', fontSize: '1rem' }}>
                                 👤 Completar Mi Perfil
                             </a>
@@ -285,6 +297,79 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                     children
                 )}
             </div>
+
+            <style jsx>{`
+                .dashboard-layout {
+                    display: flex;
+                    min-height: 100vh;
+                    background: var(--color-bg);
+                }
+                .dashboard-topbar {
+                    display: none;
+                }
+                .dashboard-sidebar {
+                    width: 260px;
+                    background: var(--color-primary-dark);
+                    color: var(--color-white);
+                    padding: 1.5rem 0;
+                    flex-shrink: 0;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .dashboard-content {
+                    flex: 1;
+                    padding: 2rem;
+                    overflow-x: auto;
+                    min-width: 0;
+                }
+                .dashboard-overlay {
+                    display: none;
+                }
+
+                @media (max-width: 768px) {
+                    .dashboard-layout {
+                        flex-direction: column;
+                    }
+                    .dashboard-topbar {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding: 0.75rem 1rem;
+                        background: var(--color-primary-dark);
+                        position: sticky;
+                        top: 0;
+                        z-index: 1001;
+                        border-bottom: 1px solid rgba(255,255,255,0.1);
+                    }
+                    .dashboard-sidebar {
+                        position: fixed;
+                        top: 0;
+                        left: -280px;
+                        width: 280px;
+                        height: 100vh;
+                        z-index: 1002;
+                        transition: left 0.3s ease;
+                        overflow-y: auto;
+                        padding-top: 1.5rem;
+                    }
+                    .dashboard-sidebar.open {
+                        left: 0;
+                    }
+                    .dashboard-overlay {
+                        display: block;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0,0,0,0.5);
+                        z-index: 1001;
+                    }
+                    .dashboard-content {
+                        padding: 1rem;
+                    }
+                }
+            `}</style>
         </div>
     );
 }
