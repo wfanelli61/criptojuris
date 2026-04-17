@@ -13,6 +13,7 @@ Sistema web completo para gestión de un bufete de abogados con Landing Page pú
 | **JWT + Refresh Token** | Autenticación |
 | **Tailwind CSS 4** | Estilos |
 | **Zod** | Validación |
+| **Socket.io** | Chat en tiempo real |
 | **Docker Compose** | PostgreSQL |
 
 ## 🚀 Inicio Rápido
@@ -87,36 +88,90 @@ npm run dev
 │   │   └── seed.ts                # Datos de prueba
 │   └── src/
 │       ├── index.ts               # Servidor Express
+│       ├── socket.ts              # Socket.io (chat en tiempo real)
 │       ├── config/                 # Configuración + Prisma client
 │       ├── middleware/             # auth, roles, errorHandler
-│       ├── routes/                 # auth, public, client, lawyer, admin
+│       ├── routes/                 # auth, public, client, lawyer, admin, verification, chat
 │       └── validators/            # Schemas Zod
 ├── frontend/
 │   └── src/
 │       ├── app/
 │       │   ├── page.tsx           # Landing Page
-│       │   ├── abogados/          # Listado + Perfil
+│       │   ├── abogados/          # Listado + Perfil público
 │       │   ├── login/             # Login
-│       │   ├── registro/          # Registro
+│       │   ├── registro/          # Registro (Cliente o Abogado)
+│       │   ├── para-abogados/     # Página de captación de abogados
+│       │   ├── verificar/         # Verificación de email
 │       │   └── dashboard/         # Dashboard por rol
+│       │       ├── page.tsx       # Home dinámico con métricas
 │       │       ├── citas/         # Cliente: mis citas
 │       │       ├── perfil/        # Cliente: mi perfil
-│       │       ├── mis-citas/     # Abogado: solicitudes
+│       │       ├── mis-citas/     # Abogado: citas asignadas
 │       │       ├── mi-perfil/     # Abogado: perfil profesional
+│       │       ├── verificacion/  # Abogado: formulario de verificación
+│       │       ├── chat/          # Chat en tiempo real
 │       │       └── admin/         # Admin: CRUD completo
-│       ├── components/            # Navbar, Footer
-│       ├── contexts/              # AuthContext
-│       └── lib/                   # API fetch wrapper
+│       │           ├── usuarios/
+│       │           ├── abogados/
+│       │           ├── verificaciones/
+│       │           ├── servicios/
+│       │           ├── testimonios/
+│       │           └── citas/
+│       ├── components/            # Navbar, Footer, Calendar, AIChatWidget
+│       ├── contexts/              # AuthContext, SocketContext
+│       ├── hooks/                 # useSocket
+│       └── lib/                   # API fetch wrapper, theme
 ```
 
 ## 🔐 Roles y Permisos
 
-- **CLIENTE**: Crear solicitudes, ver historial, editar perfil
-- **ABOGADO**: Ver solicitudes asignadas, cambiar estados, editar perfil profesional
-- **ADMIN**: CRUD completo de usuarios, abogados, servicios, testimonios, citas + métricas
+- **CLIENTE**: Crear solicitudes de cita, ver historial, editar perfil, chatear con abogados
+- **ABOGADO**: Ver solicitudes asignadas, cambiar estados, editar perfil profesional, verificación
+- **ADMIN**: CRUD completo de usuarios, abogados, servicios, testimonios, citas, verificaciones + métricas
+
+## 🔄 Flujo de Verificación de Abogados
+
+1. Abogado se registra → Se crea perfil con estado `NONE`
+2. Abogado completa formulario de verificación (6 pasos) → Estado cambia a `PENDING`
+3. Admin revisa la solicitud en `/dashboard/admin/verificaciones`
+4. Admin aprueba o rechaza → Estado cambia a `APPROVED` o `REJECTED`
+5. Abogado aprobado aparece en el listado público
 
 ## 🎨 Paleta de Colores
 
 - **Primario**: Navy Blue (#1E3A5F)
 - **Acento**: Gold (#D4A847)
 - **Fondo**: White/Light Gray (#F8F9FA)
+
+## 📡 API Endpoints
+
+### Públicos
+- `GET /api/public/services` — Servicios activos
+- `GET /api/public/testimonials` — Testimonios aprobados
+- `GET /api/public/lawyers` — Abogados verificados
+
+### Auth
+- `POST /api/auth/register` — Registro
+- `POST /api/auth/login` — Login
+- `POST /api/auth/refresh` — Refresh token
+- `POST /api/auth/logout` — Logout
+- `GET /api/auth/me` — Usuario actual
+
+### Cliente
+- `GET/PUT /api/clients/me` — Perfil
+- `GET/POST /api/clients/me/appointments` — Citas
+
+### Abogado
+- `GET/PUT /api/lawyers/me/profile` — Perfil
+- `GET /api/lawyers/me/appointments` — Citas
+- `PUT /api/lawyers/me/appointments/:id/status` — Cambiar estado
+
+### Admin
+- CRUD: `/api/admin/users`, `/api/admin/lawyers`, `/api/admin/services`, `/api/admin/testimonials`, `/api/admin/appointments`
+- Verificaciones: `/api/admin/verifications`
+- Métricas: `/api/admin/metrics`
+
+### Chat
+- `GET/POST /api/chat/conversations` — Conversaciones
+- `GET /api/chat/conversations/:id/messages` — Mensajes
+- `POST /api/chat/conversations/:id/upload` — Subir archivo

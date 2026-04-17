@@ -47,6 +47,9 @@ model LawyerProfile {
 
   user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   verification LawyerVerification?
+
+  @@index([verificationStatus])
+  @@index([active])
 }
 
 model LawyerVerification {
@@ -99,30 +102,30 @@ model LawyerVerification {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  lawyerProfile LawyerProfile @relation(fields: [lawyerProfileId], references: [id], onDelete: Cascade)
+  profile LawyerProfile @relation(fields: [lawyerProfileId], references: [id], onDelete: Cascade)
 }
 
 model Service {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  icon        String?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
+  id           String               @id @default(cuid())
+  name         String
+  description  String
+  price        Float
+  icon         String               @default("⚖️")
+  active       Boolean              @default(true)
   appointments AppointmentRequest[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 }
 
 model Testimonial {
-  id         String   @id @default(cuid())
-  clientName String
-  clientRole String?
-  rating     Int      @default(5)
-  content    String
-  approved   Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  content   String
+  rating    Int      @default(5)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AppointmentRequest {
