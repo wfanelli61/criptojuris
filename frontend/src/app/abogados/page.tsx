@@ -1,246 +1,371 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { apiFetch } from '@/lib/api';
 import { C } from '@/lib/theme';
 
-interface Lawyer {
-    id: string;
-    name: string;
-    lawyerProfile?: {
-        specialties: string[];
-        city: string;
-        ratePerHour: number;
-        photoUrl: string;
-        yearsExperience: number;
-        bio: string;
-    };
+const AREAS = ['PENAL', 'CIVIL', 'LOPNA', 'CORPORATIVO'];
+const LANGUAGES = ['Español', 'Inglés', 'Portugués', 'Francés'];
+const SORT_OPTIONS = [
+    { value: 'name',        label: 'Nombre A–Z' },
+    { value: 'price_asc',   label: 'Precio: menor a mayor' },
+    { value: 'price_desc',  label: 'Precio: mayor a menor' },
+    { value: 'experience',  label: 'Más experiencia' },
+];
+
+interface Filters {
+    search: string; city: string; specialty: string;
+    minPrice: string; maxPrice: string; minYears: string;
+    language: string; sortBy: string;
 }
 
-export default function AbogadosPage() {
-    const [lawyers, setLawyers] = useState<Lawyer[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [search, setSearch] = useState('');
-    const [city, setCity] = useState('');
-    const [specialty, setSpecialty] = useState('');
+const DEFAULT_FILTERS: Filters = {
+    search: '', city: '', specialty: '', minPrice: '', maxPrice: '',
+    minYears: '', language: '', sortBy: 'name',
+};
 
-    const fetchLawyers = async () => {
+function activeChips(f: Filters) {
+    const chips: { key: keyof Filters; label: string }[] = [];
+    if (f.search)    chips.push({ key: 'search',    label: `"${f.search}"` });
+    if (f.city)      chips.push({ key: 'city',      label: `📍 ${f.city}` });
+    if (f.specialty) chips.push({ key: 'specialty', label: `⚖️ ${f.specialty}` });
+    if (f.minPrice)  chips.push({ key: 'minPrice',  label: `≥ $${f.minPrice}/h` });
+    if (f.maxPrice)  chips.push({ key: 'maxPrice',  label: `≤ $${f.maxPrice}/h` });
+    if (f.minYears)  chips.push({ key: 'minYears',  label: `≥ ${f.minYears} años exp.` });
+    if (f.language)  chips.push({ key: 'language',  label: `🌐 ${f.language}` });
+    return chips;
+}
+
+const iStyle: React.CSSProperties = {
+    width: '100%', padding: '0.6rem 0.85rem', borderRadius: '0.6rem',
+    border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)',
+    color: '#fff', fontSize: '0.82rem', outline: 'none', boxSizing: 'border-box',
+};
+
+const PAGE_SIZE = 9;
+
+export default function AbogadosPage() {
+    const [lawyers, setLawyers] = useState<any[]>([]);
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+    const [applied, setApplied] = useState<Filters>(DEFAULT_FILTERS);
+
+    const doFetch = useCallback(async (f: Filters, p: number) => {
         setLoading(true);
         try {
-            const params = new URLSearchParams({ limit: '100' });
-            if (search) params.set('search', search);
-            if (city) params.set('city', city);
-            if (specialty) params.set('specialty', specialty);
-            const data = await apiFetch(`/public/lawyers?${params.toString()}`);
+            const params = new URLSearchParams({ page: String(p), limit: String(PAGE_SIZE), sortBy: f.sortBy });
+            if (f.search)    params.set('search', f.search);
+            if (f.city)      params.set('city', f.city);
+            if (f.specialty) params.set('specialty', f.specialty);
+            if (f.minPrice)  params.set('minPrice', f.minPrice);
+            if (f.maxPrice)  params.set('maxPrice', f.maxPrice);
+            if (f.minYears)  params.set('minYears', f.minYears);
+            if (f.language)  params.set('language', f.language);
+            const data = await apiFetch(`/public/lawyers?${params}`);
             setLawyers(data.lawyers || []);
-        } catch {
-            console.error('Failed to fetch lawyers');
-            setLawyers([]);
-        }
+            setTotal(data.pagination?.total || 0);
+            setTotalPages(data.pagination?.totalPages || 1);
+        } catch { setLawyers([]); }
         setLoading(false);
-    };
+    }, []);
 
-    useEffect(() => { fetchLawyers(); }, []);
+    useEffect(() => { doFetch(applied, page); }, [applied, page, doFetch]);
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        fetchLawyers();
+    const apply = () => { setApplied({ ...filters }); setPage(1); };
+    const reset = () => { const d = DEFAULT_FILTERS; setFilters(d); setApplied(d); setPage(1); };
+    const removeChip = (key: keyof Filters) => {
+        const next = { ...applied, [key]: DEFAULT_FILTERS[key] };
+        setFilters(next); setApplied(next); setPage(1);
     };
+    const set = (key: keyof Filters, val: string) => setFilters(f => ({ ...f, [key]: val }));
+
+    const chips = activeChips(applied);
+    const hasFilters = chips.length > 0;
 
     return (
-        <div className="lawyers-directory" style={{ 
-            background: `linear-gradient(180deg, ${C.navyDeep} 0%, ${C.navy} 100%)`, 
-            minHeight: '100vh',
-            paddingTop: '6rem', // Reduced from 8rem
-            paddingBottom: '3rem',
-            position: 'relative',
-            overflow: 'hidden'
-        }}>
-            {/* Subtle glow */}
-            <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)', width: '60%', height: '30%', background: `${C.yellow}03`, filter: 'blur(100px)', borderRadius: '50%' }} />
+        <div style={{ background: `linear-gradient(180deg, ${C.navyDeep} 0%, #0A1929 100%)`, minHeight: '100vh', paddingTop: '8rem', paddingBottom: '3rem' }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
 
-            <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1100px' }}>
-                <header style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-                    <h1 style={{ 
-                        fontSize: '2.2rem', // Reduced from 3.5rem
-                        marginBottom: '0.5rem', 
-                        color: C.white,
-                        fontFamily: 'var(--font-heading)',
-                        fontWeight: 800,
-                    }}>
-                        Buscador de <span style={{ color: C.yellow }}>Abogados</span>
+                {/* Header */}
+                <header style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                    <h1 style={{ fontSize: '2rem', color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem' }}>
+                        Directorio de <span style={{ color: C.yellow }}>Abogados</span>
                     </h1>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem' }}>
-                        Encuentre al especialista ideal para sus necesidades legales.
-                    </p>
+                    <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.9rem' }}>Encuentra al especialista ideal con filtros avanzados</p>
                 </header>
 
-                {/* Compact Search Bar */}
-                <form onSubmit={handleSearch} style={{
-                    display: 'flex',
-                    gap: '0.75rem',
-                    marginBottom: '3rem',
-                    flexWrap: 'wrap',
-                    background: 'rgba(255,255,255,0.02)',
-                    padding: '0.75rem', // Reduced padding
-                    borderRadius: '1.25rem',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    backdropFilter: 'blur(15px)',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                }}>
-                    <input
-                        type="text"
-                        placeholder="Nombre del abogado..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        style={{
-                            flex: '2', minWidth: '200px',
-                            background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '0.75rem',
-                            color: C.white,
-                            padding: '0.7rem 1rem',
-                            fontSize: '0.9rem',
-                            outline: 'none'
-                        }}
-                    />
-                    <input
-                        type="text"
-                        placeholder="Ciudad"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        style={{
-                            flex: '1', minWidth: '120px',
-                            background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '0.75rem',
-                            color: C.white,
-                            padding: '0.7rem 1rem',
-                            fontSize: '0.9rem',
-                            outline: 'none'
-                        }}
-                    />
-                    <input
-                        type="text"
-                        placeholder="Especialidad"
-                        value={specialty}
-                        onChange={(e) => setSpecialty(e.target.value)}
-                        style={{
-                            flex: '1', minWidth: '120px',
-                            background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '0.75rem',
-                            color: C.white,
-                            padding: '0.7rem 1rem',
-                            fontSize: '0.9rem',
-                            outline: 'none'
-                        }}
-                    />
-                    <button type="submit" className="btn btn-primary" style={{
-                        padding: '0.7rem 2rem',
-                        fontSize: '0.9rem',
-                        fontWeight: 700,
-                        border: 'none',
-                        background: `linear-gradient(135deg, ${C.yellow}, ${C.orange})`,
-                        color: C.navyDeep,
-                        borderRadius: '0.75rem',
+                {/* Grid principal */}
+                <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+
+                    {/* ── SIDEBAR ──────────────────────────────────────── */}
+                    <aside style={{
+                        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '1rem', padding: '1.25rem', position: 'sticky', top: '5.5rem',
                     }}>
-                        Buscar
-                    </button>
-                </form>
+                        <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.88rem', marginBottom: '1.25rem' }}>🎛 Filtros</div>
 
-                {/* Compact Results Grid */}
-                {loading ? (
-                    <div style={{ textAlign: 'center', padding: '3rem' }}><div className="spinner" style={{ borderColor: C.yellow }} /></div>
-                ) : lawyers.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '4rem', color: 'rgba(255,255,255,0.3)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '1rem' }}>
-                        No se encontraron resultados
-                    </div>
-                ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                        {lawyers.map((lawyer) => (
-                            <div key={lawyer.id} style={{ 
-                                background: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(255,255,255,0.06)',
-                                borderRadius: '1rem',
-                                padding: '1.5rem',
-                                transition: 'transform 0.3s ease',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '1rem'
-                            }} className="lawyer-card-compact">
-                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                    <div style={{
-                                        width: '50px', height: '50px',
-                                        borderRadius: '50%',
-                                        background: `linear-gradient(135deg, ${C.yellow}, ${C.orange})`,
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        color: C.navyDeep, fontSize: '1.2rem', fontWeight: 800,
-                                        boxShadow: `0 4px 10px ${C.yellow}30`
-                                    }}>{lawyer.name.charAt(0)}</div>
-                                    <div>
-                                        <h3 style={{ fontSize: '1.1rem', color: C.white, marginBottom: '0.1rem' }}>{lawyer.name}</h3>
-                                        {lawyer.lawyerProfile && (
-                                            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
-                                                📍 {lawyer.lawyerProfile.city} · {lawyer.lawyerProfile.yearsExperience} años exp.
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
+                        {/* Nombre */}
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.35rem' }}>Nombre</label>
+                            <input style={iStyle} placeholder="Ej: Carlos Martínez" value={filters.search} onChange={e => set('search', e.target.value)} />
+                        </div>
 
-                                {lawyer.lawyerProfile && (
-                                    <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                                        {lawyer.lawyerProfile.specialties.slice(0, 3).map((s) => (
-                                            <span key={s} style={{
-                                                background: 'rgba(255,255,255,0.06)',
-                                                color: 'rgba(255,255,255,0.8)',
-                                                padding: '0.2rem 0.6rem',
-                                                borderRadius: '0.5rem',
-                                                fontSize: '0.65rem',
-                                                fontWeight: 600,
-                                                border: '1px solid rgba(255,255,255,0.08)'
-                                            }}>{s}</span>
-                                        ))}
-                                    </div>
-                                )}
+                        {/* Ciudad */}
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.35rem' }}>Ciudad</label>
+                            <input style={iStyle} placeholder="Ej: Caracas" value={filters.city} onChange={e => set('city', e.target.value)} />
+                        </div>
 
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
-                                    alignItems: 'center', 
-                                    marginTop: 'auto',
-                                    paddingTop: '1rem',
-                                    borderTop: '1px solid rgba(255,255,255,0.04)'
-                                }}>
-                                    <span style={{ fontWeight: 800, color: C.yellow, fontSize: '1.1rem' }}>
-                                        ${lawyer.lawyerProfile?.ratePerHour || 0}/hr
-                                    </span>
-                                    <Link href={`/abogados/${lawyer.id}`} style={{
-                                        padding: '0.5rem 1.25rem',
-                                        fontSize: '0.8rem',
-                                        background: `linear-gradient(135deg, ${C.yellow}, ${C.orange})`,
-                                        color: C.navyDeep,
-                                        fontWeight: 700,
-                                        borderRadius: '0.5rem',
-                                        textDecoration: 'none'
-                                    }}>
-                                        Ver Perfil
-                                    </Link>
-                                </div>
+                        {/* Área jurídica */}
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.4rem' }}>Área jurídica</label>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.5rem' }}>
+                                {AREAS.map(a => (
+                                    <button key={a} onClick={() => set('specialty', filters.specialty === a ? '' : a)} style={{
+                                        padding: '0.25rem 0.6rem', borderRadius: '9999px', fontSize: '0.68rem', fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
+                                        background: filters.specialty === a ? '#F0B429' : 'rgba(255,255,255,0.07)',
+                                        color: filters.specialty === a ? '#0C2340' : 'rgba(255,255,255,0.6)',
+                                    }}>{a}</button>
+                                ))}
                             </div>
-                        ))}
+                            <input style={iStyle} placeholder="Otra especialidad..." value={AREAS.includes(filters.specialty) ? '' : filters.specialty} onChange={e => set('specialty', e.target.value)} />
+                        </div>
+
+                        {/* Precio */}
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.35rem' }}>Tarifa/hora (USD)</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
+                                <input style={iStyle} type="number" placeholder="Mín." value={filters.minPrice} onChange={e => set('minPrice', e.target.value)} />
+                                <input style={iStyle} type="number" placeholder="Máx." value={filters.maxPrice} onChange={e => set('maxPrice', e.target.value)} />
+                            </div>
+                        </div>
+
+                        {/* Experiencia mínima */}
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.35rem' }}>
+                                Experiencia mínima{filters.minYears ? ` — ${filters.minYears} años` : ''}
+                            </label>
+                            <input type="range" min="0" max="30" step="1" value={filters.minYears || '0'} onChange={e => set('minYears', e.target.value === '0' ? '' : e.target.value)}
+                                style={{ width: '100%', accentColor: '#F0B429' }} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', marginTop: '0.15rem' }}>
+                                <span>0</span><span>30 años</span>
+                            </div>
+                        </div>
+
+                        {/* Idioma */}
+                        <div style={{ marginBottom: '1.25rem' }}>
+                            <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.4rem' }}>Idioma</label>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                                {LANGUAGES.map(l => (
+                                    <button key={l} onClick={() => set('language', filters.language === l ? '' : l)} style={{
+                                        padding: '0.25rem 0.6rem', borderRadius: '9999px', fontSize: '0.68rem', fontWeight: 700, cursor: 'pointer', border: 'none',
+                                        background: filters.language === l ? '#F0B429' : 'rgba(255,255,255,0.07)',
+                                        color: filters.language === l ? '#0C2340' : 'rgba(255,255,255,0.6)',
+                                    }}>{l}</button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Ordenar */}
+                        <div style={{ marginBottom: '1.25rem' }}>
+                            <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.35rem' }}>Ordenar por</label>
+                            <select value={filters.sortBy} onChange={e => set('sortBy', e.target.value)} style={{ ...iStyle, appearance: 'none' as any }}>
+                                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                            </select>
+                        </div>
+
+                        {/* Botones */}
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button onClick={apply} style={{
+                                flex: 2, padding: '0.6rem', borderRadius: '0.6rem', border: 'none', cursor: 'pointer',
+                                background: 'linear-gradient(135deg,#F0B429,#F6A623)', color: '#0C2340', fontWeight: 700, fontSize: '0.82rem',
+                            }}>Aplicar</button>
+                            {hasFilters && (
+                                <button onClick={reset} style={{
+                                    flex: 1, padding: '0.6rem', borderRadius: '0.6rem', border: '1px solid rgba(255,255,255,0.12)',
+                                    background: 'transparent', color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer',
+                                }}>Limpiar</button>
+                            )}
+                        </div>
+                    </aside>
+
+                    {/* ── RESULTADOS ───────────────────────────────────── */}
+                    <div>
+                        {/* Barra superior */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)' }}>
+                                {loading ? 'Buscando...' : `${total} abogado${total !== 1 ? 's' : ''} encontrado${total !== 1 ? 's' : ''}`}
+                            </span>
+                            <select value={applied.sortBy} onChange={e => { setApplied(f => ({ ...f, sortBy: e.target.value })); setPage(1); }}
+                                style={{ padding: '0.38rem 0.7rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '0.75rem', cursor: 'pointer' }}>
+                                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                            </select>
+                        </div>
+
+                        {/* Chips activos */}
+                        {chips.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.75rem' }}>
+                                {chips.map(c => (
+                                    <span key={c.key} style={{
+                                        display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                                        padding: '0.22rem 0.6rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 600,
+                                        background: 'rgba(240,180,41,0.12)', color: '#F0B429', border: '1px solid rgba(240,180,41,0.22)',
+                                    }}>
+                                        {c.label}
+                                        <button onClick={() => removeChip(c.key)} style={{ background: 'none', border: 'none', color: '#F0B429', cursor: 'pointer', padding: 0, fontSize: '0.8rem' }}>×</button>
+                                    </span>
+                                ))}
+                                <button onClick={reset} style={{ padding: '0.22rem 0.6rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>
+                                    Limpiar todo ×
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Cards */}
+                        {loading ? (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(270px,1fr))', gap: '1rem' }}>
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '1rem', height: '190px' }} />
+                                ))}
+                            </div>
+                        ) : lawyers.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '4rem 2rem', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '1rem' }}>
+                                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔍</div>
+                                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.88rem', marginBottom: '0.75rem' }}>Sin resultados con esos criterios</p>
+                                <button onClick={reset} style={{ padding: '0.5rem 1.25rem', borderRadius: '0.6rem', background: '#F0B429', color: '#0C2340', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: '0.82rem' }}>
+                                    Limpiar filtros
+                                </button>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(270px,1fr))', gap: '1rem' }}>
+                                {lawyers.map(l => <LawyerCard key={l.id} lawyer={l} />)}
+                            </div>
+                        )}
+
+                        {/* Paginación */}
+                        {!loading && totalPages > 1 && (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginTop: '2rem' }}>
+                                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
+                                    padding: '0.45rem 0.9rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.12)',
+                                    background: 'rgba(255,255,255,0.04)', color: page === 1 ? 'rgba(255,255,255,0.2)' : '#fff',
+                                    cursor: page === 1 ? 'not-allowed' : 'pointer', fontSize: '0.78rem', fontWeight: 600,
+                                }}>← Anterior</button>
+
+                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                    const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i;
+                                    if (p < 1 || p > totalPages) return null;
+                                    return (
+                                        <button key={p} onClick={() => setPage(p)} style={{
+                                            width: '34px', height: '34px', borderRadius: '0.45rem', border: 'none', cursor: 'pointer',
+                                            background: p === page ? '#F0B429' : 'rgba(255,255,255,0.05)',
+                                            color: p === page ? '#0C2340' : 'rgba(255,255,255,0.55)', fontSize: '0.78rem', fontWeight: 700,
+                                        }}>{p}</button>
+                                    );
+                                })}
+
+                                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{
+                                    padding: '0.45rem 0.9rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.12)',
+                                    background: 'rgba(255,255,255,0.04)', color: page === totalPages ? 'rgba(255,255,255,0.2)' : '#fff',
+                                    cursor: page === totalPages ? 'not-allowed' : 'pointer', fontSize: '0.78rem', fontWeight: 600,
+                                }}>Siguiente →</button>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function LawyerCard({ lawyer }: { lawyer: any }) {
+    const profile = lawyer.lawyerProfile;
+    const specialties: string[] = profile?.specialties || [];
+    const langs: string[] = profile?.languages || [];
+
+    return (
+        <div
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', transition: 'all 0.2s', cursor: 'pointer' }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'rgba(255,255,255,0.05)'; el.style.transform = 'translateY(-3px)'; el.style.borderColor = 'rgba(240,180,41,0.25)'; el.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)'; }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'rgba(255,255,255,0.03)'; el.style.transform = 'none'; el.style.borderColor = 'rgba(255,255,255,0.07)'; el.style.boxShadow = 'none'; }}
+        >
+            {/* Avatar + nombre */}
+            <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start' }}>
+                <div style={{
+                    width: '46px', height: '46px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
+                    background: 'linear-gradient(135deg,#F0B429,#F6A623)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1rem', fontWeight: 800, color: '#0C2340', boxShadow: '0 4px 12px rgba(240,180,41,0.25)',
+                }}>
+                    {profile?.photoUrl
+                        ? <img src={`http://localhost:4000${profile.photoUrl}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : lawyer.name.charAt(0)
+                    }
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 700, margin: '0 0 0.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lawyer.name}</h3>
+                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.38)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {profile?.city && <span>📍 {profile.city}</span>}
+                        {profile?.yearsExperience && <span>⏱ {profile.yearsExperience} años exp.</span>}
+                    </div>
+                </div>
             </div>
 
-            <style jsx>{`
-                .lawyer-card-compact:hover {
-                    transform: translateY(-4px);
-                    background: rgba(255,255,255,0.05) !important;
-                    border-color: rgba(255,255,255,0.1) !important;
-                }
-            `}</style>
+            {/* Especialidades */}
+            {specialties.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                    {specialties.slice(0, 3).map(s => (
+                        <span key={s} style={{ background: 'rgba(240,180,41,0.1)', color: 'rgba(240,180,41,0.85)', padding: '0.17rem 0.5rem', borderRadius: '0.4rem', fontSize: '0.62rem', fontWeight: 600, border: '1px solid rgba(240,180,41,0.18)' }}>{s}</span>
+                    ))}
+                    {specialties.length > 3 && <span style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.28)', alignSelf: 'center' }}>+{specialties.length - 3}</span>}
+                </div>
+            )}
+
+            {/* Bio */}
+            {profile?.bio && (
+                <p style={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.38)', margin: 0, lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any }}>
+                    {profile.bio}
+                </p>
+            )}
+
+            {/* Idiomas */}
+            {langs.length > 0 && (
+                <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                    {langs.slice(0, 3).map(l => (
+                        <span key={l} style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.35)', background: 'rgba(255,255,255,0.05)', padding: '0.15rem 0.4rem', borderRadius: '0.3rem' }}>🌐 {l}</span>
+                    ))}
+                </div>
+            )}
+
+            {/* Footer */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.7rem', borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 'auto' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                    {profile?.ratePerHour ? (
+                        <>
+                            <span style={{ fontWeight: 900, color: C.yellow, fontSize: '1.05rem' }}>${profile.ratePerHour}<span style={{ color: 'rgba(255,255,255,0.28)', fontSize: '0.68rem', fontWeight: 400 }}>/hora</span></span>
+                        </>
+                    ) : (
+                        <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.28)' }}>Consultar tarifa</span>
+                    )}
+                    {lawyer.avgRating ? (
+                        <span style={{ fontSize: '0.65rem', color: '#F0B429' }}>
+                            {'★'.repeat(Math.round(lawyer.avgRating))}{'☆'.repeat(5 - Math.round(lawyer.avgRating))}
+                            {' '}<span style={{ color: 'rgba(255,255,255,0.35)' }}>{lawyer.avgRating} ({lawyer.totalReviews})</span>
+                        </span>
+                    ) : (
+                        <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)' }}>Sin calificaciones aún</span>
+                    )}
+                </div>
+                <Link href={`/abogados/${lawyer.id}`} style={{
+                    padding: '0.42rem 1rem', fontSize: '0.75rem', fontWeight: 700, borderRadius: '0.5rem',
+                    background: 'linear-gradient(135deg,#F0B429,#F6A623)', color: '#0C2340', textDecoration: 'none',
+                }}>
+                    Ver perfil →
+                </Link>
+            </div>
         </div>
     );
 }

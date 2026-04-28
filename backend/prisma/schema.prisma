@@ -14,6 +14,10 @@ model User {
   role              String    @default("CLIENTE")
   name              String
   phone             String?
+  cedula            String?   // V-12.345.678 / E-12.345.678 / J-123456789
+  rif               String?   // J-12345678-9 (personas jurídicas)
+  estado            String?   // Estado venezolano (Miranda, Carabobo, etc.)
+  direccion         String?   // Dirección completa
   emailVerified     Boolean   @default(false)
   verificationToken String?
   createdAt         DateTime  @default(now())
@@ -25,9 +29,22 @@ model User {
   lawyerAppointments AppointmentRequest[] @relation("LawyerAppointments")
   conversations      Conversation[]       @relation("UserConversations")
   messages           Message[]
+  clientCases        LegalCase[]          @relation("ClientCases")
+  lawyerCases        LegalCase[]          @relation("LawyerCases")
+  blogPosts          BlogPost[]           @relation("AuthorPosts")
+  supportTickets     SupportTicket[]      @relation("UserTickets")
+  subscription       Subscription?
+  notifications      Notification[]
+  reviewsGiven       Review[]             @relation("ClientReviews")
+  reviewsReceived    Review[]             @relation("LawyerReviews")
+  availabilitySlots  AvailabilitySlot[]   @relation("LawyerSlots")
+  caseEvents         CaseEvent[]          @relation("EventCreator")
+  clientPayments     CasePayment[]        @relation("ClientPayments")
+  confirmedPayments  CasePayment[]        @relation("ConfirmedPayments")
 
   @@index([email])
   @@index([role])
+  @@index([cedula])
 }
 
 model LawyerProfile {
@@ -111,6 +128,7 @@ model Service {
   description  String
   price        Float
   icon         String               @default("⚖️")
+  legalArea    String               @default("GENERAL") // PENAL, CIVIL, LOPNA, CORPORATIVO, GENERAL
   active       Boolean              @default(true)
   appointments AppointmentRequest[]
   createdAt    DateTime             @default(now())
@@ -135,6 +153,7 @@ model AppointmentRequest {
   serviceId     String
   message       String?
   preferredDate DateTime?
+  legalArea     String    @default("GENERAL") // PENAL, CIVIL, LOPNA, CORPORATIVO, GENERAL
   status        String    @default("PENDIENTE")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -178,4 +197,331 @@ model Message {
   @@index([conversationId])
   @@index([senderId])
   @@index([createdAt])
+}
+
+// ─── MÓDULO EXPEDIENTES / CASOS ─────────────────────────────────────────────
+
+model LegalCase {
+  id           String   @id @default(cuid())
+  caseNumber   String   @unique
+  title        String
+  description  String?
+  legalArea    String   // PENAL, CIVIL, LOPNA, CORPORATIVO
+  status       String   @default("SOLICITUD") // SOLICITUD, PRESUPUESTO_ENVIADO, PRESUPUESTO_APROBADO, CONTRATO_FIRMADO, EN_CURSO, CERRADO, CANCELADO
+  clientId     String
+  lawyerId     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  client       User              @relation("ClientCases", fields: [clientId], references: [id], onDelete: Cascade)
+  lawyer       User?             @relation("LawyerCases", fields: [lawyerId], references: [id])
+  budget       Budget?
+  contract     ServiceContract?
+  analysis     CaseAnalysis?
+  documents    CaseDocument[]
+  investigations Investigation[]
+  norms        CaseNorm[]
+  review       Review?
+  events       CaseEvent[]
+  payments     CasePayment[]
+
+  @@index([clientId])
+  @@index([lawyerId])
+  @@index([status])
+  @@index([legalArea])
+}
+
+model Budget {
+  id          String   @id @default(cuid())
+  caseId      String   @unique
+  amount      Float
+  description String
+  status      String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  case LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+}
+
+model ServiceContract {
+  id               String    @id @default(cuid())
+  caseId           String    @unique
+  terms            String
+  fileUrl          String?
+  signedAt         DateTime?
+  signedBy         String?
+
+  // Firma digital manuscrita
+  clientSignature  String?
+  clientSignedAt   DateTime?
+  lawyerSignature  String?
+  lawyerSignedAt   DateTime?
+  signatureHash    String?
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  case LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+}
+
+model CaseAnalysis {
+  id          String   @id @default(cuid())
+  caseId      String   @unique
+  summary     String
+  strategy    String
+  route       String
+  risks       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  case LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+}
+
+model CaseDocument {
+  id          String   @id @default(cuid())
+  caseId      String
+  type        String   // RECURSO, AMPARO, INCIDENTAL, OTRO
+  title       String
+  description String?
+  fileUrl     String?
+  fileName    String?
+  fileSize    Int?
+  presentedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  case LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([type])
+}
+
+model Investigation {
+  id          String   @id @default(cuid())
+  caseId      String
+  title       String
+  description String
+  result      String?
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  case LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+// ─── MÓDULO NORMAS / JURISPRUDENCIA ─────────────────────────────────────────
+
+model LegalNorm {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  type        String   // LEY, JURISPRUDENCIA, SENTENCIA
+  legalArea   String   // PENAL, CIVIL, LOPNA, CORPORATIVO, GENERAL
+  source      String?
+  publishedAt DateTime?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cases CaseNorm[]
+
+  @@index([type])
+  @@index([legalArea])
+}
+
+model CaseNorm {
+  caseId      String
+  legalNormId String
+
+  case      LegalCase      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  legalNorm LegalNorm @relation(fields: [legalNormId], references: [id], onDelete: Cascade)
+
+  @@id([caseId, legalNormId])
+}
+
+// ─── MÓDULO BLOG / ARTÍCULOS ─────────────────────────────────────────────────
+
+model BlogPost {
+  id        String    @id @default(cuid())
+  title     String
+  slug      String    @unique
+  content   String
+  excerpt   String?
+  legalArea String    @default("GENERAL")
+  authorId  String
+  imageUrl  String?
+  published Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  author User @relation("AuthorPosts", fields: [authorId], references: [id])
+
+  @@index([authorId])
+  @@index([legalArea])
+  @@index([published])
+}
+
+// ─── NOTIFICACIONES ──────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  body      String?
+  type      String   // CASO, MENSAJE, PRESUPUESTO, CONTRATO, SOPORTE, SISTEMA
+  link      String?
+  refId     String?  // ID de la entidad relacionada (ej: caseId) para poder borrar en bloque
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+// ─── MÓDULO PLANES / SUSCRIPCIONES ──────────────────────────────────────────
+
+model Plan {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  price         Float
+  currency      String   @default("USD")
+  interval      String   @default("MENSUAL") // MENSUAL, ANUAL
+  maxCases      Int      @default(5)
+  maxClients    Int      @default(20)
+  features      String   @default("[]") // JSON array of feature strings
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subscriptions Subscription[]
+
+  @@index([active])
+}
+
+model Subscription {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  planId      String
+  status      String    @default("ACTIVA") // ACTIVA, CANCELADA, VENCIDA, PENDIENTE
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  paymentRef  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ─── MÓDULO SOPORTE ──────────────────────────────────────────────────────────
+
+model SupportTicket {
+  id        String   @id @default(cuid())
+  userId    String
+  subject   String
+  message   String
+  status    String   @default("ABIERTO") // ABIERTO, EN_PROCESO, CERRADO
+  response  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ─── CALIFICACIONES ──────────────────────────────────────────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  caseId    String   @unique
+  clientId  String
+  lawyerId  String
+  rating    Int      // 1 a 5
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  case   LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  client User      @relation("ClientReviews", fields: [clientId], references: [id])
+  lawyer User      @relation("LawyerReviews", fields: [lawyerId], references: [id])
+
+  @@index([lawyerId])
+  @@index([clientId])
+}
+
+// ─── DISPONIBILIDAD ──────────────────────────────────────────────────────────
+
+model AvailabilitySlot {
+  id          String   @id @default(cuid())
+  lawyerId    String
+  dayOfWeek   Int?     // 0=Dom, 1=Lun ... 6=Sáb (null si es fecha puntual)
+  specificDate DateTime? // fecha exacta (null si es recurrente)
+  startTime   String   // "09:00"
+  endTime     String   // "10:00"
+  isRecurring Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  lawyer User @relation("LawyerSlots", fields: [lawyerId], references: [id], onDelete: Cascade)
+
+  @@index([lawyerId])
+}
+
+// ─── HISTORIAL DE EVENTOS DEL CASO ──────────────────────────────────────────
+
+model CaseEvent {
+  id          String   @id @default(cuid())
+  caseId      String
+  userId      String   // quien realizó la acción
+  type        String   // STATUS_CHANGE, BUDGET, CONTRACT, PAYMENT, NOTE, DOCUMENT
+  description String
+  fromStatus  String?  // estado anterior (solo STATUS_CHANGE)
+  toStatus    String?  // estado nuevo (solo STATUS_CHANGE)
+  createdAt   DateTime @default(now())
+
+  case LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  user User      @relation("EventCreator", fields: [userId], references: [id])
+
+  @@index([caseId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ─── PAGOS DEL CASO ──────────────────────────────────────────────────────────
+
+model CasePayment {
+  id            String    @id @default(cuid())
+  caseId        String
+  clientId      String
+  amount        Float
+  currency      String    @default("USD")  // USD, VES
+  method        String    // PAGO_MOVIL, TRANSFERENCIA, ZELLE, EFECTIVO, DIVISA, OTRO
+  reference     String?   // número de referencia bancaria
+  bank          String?   // banco emisor
+  phone         String?   // teléfono (para Pago Móvil)
+  concept       String?   // concepto del pago
+  status        String    @default("PENDIENTE") // PENDIENTE, CONFIRMADO, RECHAZADO
+  confirmedById String?   // abogado que confirmó
+  confirmedAt   DateTime?
+  rejectedReason String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  case        LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  client      User      @relation("ClientPayments", fields: [clientId], references: [id])
+  confirmedBy User?     @relation("ConfirmedPayments", fields: [confirmedById], references: [id])
+
+  @@index([caseId])
+  @@index([clientId])
+  @@index([status])
 }

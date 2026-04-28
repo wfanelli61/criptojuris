@@ -36,6 +36,7 @@ function VerifyContent() {
             alignItems: 'center',
             justifyContent: 'center',
             background: 'linear-gradient(135deg, #060F1D 0%, #0C2340 50%, #1B3B5A 100%)',
+            paddingTop: '8rem',
         }}>
             <div style={{
                 width: '100%',

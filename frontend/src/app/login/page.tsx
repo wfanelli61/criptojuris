@@ -33,7 +33,7 @@ export default function LoginPage() {
             alignItems: 'center',
             justifyContent: 'center',
             background: 'linear-gradient(135deg, #060F1D 0%, #0C2340 50%, #1B3B5A 100%)',
-            paddingTop: '6rem',
+            paddingTop: '8rem',
         }}>
             <div style={{
                 width: '100%',
@@ -102,8 +102,10 @@ export default function LoginPage() {
                         </div>
 
                         <div style={{ marginBottom: '0.75rem' }}>
-                            <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151', display: 'block', marginBottom: '0.25rem' }}
-                                htmlFor="password">Contraseña</label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151' }} htmlFor="password">Contraseña</label>
+                                <Link href="#" style={{ fontSize: '0.72rem', color: '#1B4D8F', fontWeight: 500 }}>¿Olvidaste tu contraseña?</Link>
+                            </div>
                             <input
                                 id="password"
                                 type="password"
@@ -149,14 +151,14 @@ export default function LoginPage() {
                     </p>
 
                     <div style={{
-                        marginTop: '1rem', padding: '0.65rem',
-                        background: '#EFF6FF',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.72rem',
-                        color: '#4B5563',
-                        textAlign: 'center',
+                        marginTop: '1.25rem',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem',
+                        paddingTop: '1rem',
+                        borderTop: '1px solid #F3F4F6',
                     }}>
-                        <strong style={{ color: '#0C2340' }}>Demo:</strong> <code style={{ fontSize: '0.7rem' }}>admin@bufete.com</code> / <code style={{ fontSize: '0.7rem' }}>123456</code>
+                        {['🔒 Conexión segura', '✓ Datos protegidos', '⚖️ Plataforma verificada'].map(t => (
+                            <span key={t} style={{ fontSize: '0.65rem', color: '#9CA3AF', fontWeight: 500 }}>{t}</span>
+                        ))}
                     </div>
                 </div>
             </div>

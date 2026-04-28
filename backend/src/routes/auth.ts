@@ -75,10 +75,8 @@ async function sendVerificationEmail(email: string, name: string, token: string)
                 </div>
             `,
         });
-        console.log(`📧 Email de verificación enviado a ${email}`);
     } catch (err) {
         console.error('⚠️ Error enviando email de verificación:', err);
-        console.log(`🔗 Link de verificación manual: ${verifyUrl}`);
     }
 }
 

@@ -3,14 +3,28 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import { getAccessToken } from '@/lib/api';
+import { getAccessToken, apiFetch } from '@/lib/api';
+
+export interface AppNotification {
+    id: string;
+    title: string;
+    body?: string;
+    type: string;
+    link?: string;
+    refId?: string;
+    read: boolean;
+    createdAt: string;
+}
 
 interface SocketContextType {
     socket: Socket | null;
     isConnected: boolean;
     unreadCount: number;
-    notifications: any[];
     clearUnread: () => void;
+    notifications: AppNotification[];
+    notifUnread: number;
+    markNotifRead: (id: string) => void;
+    markAllRead: () => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -22,18 +36,33 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
-    const [notifications, setNotifications] = useState<any[]>([]);
+    const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
-    const clearUnread = useCallback(() => {
-        setUnreadCount(0);
+    const notifUnread = notifications.filter(n => !n.read).length;
+
+    const clearUnread = useCallback(() => setUnreadCount(0), []);
+
+    const markNotifRead = useCallback(async (id: string) => {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+        try { await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' }); } catch {}
     }, []);
+
+    const markAllRead = useCallback(async () => {
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        try { await apiFetch('/notifications/read-all', { method: 'PATCH' }); } catch {}
+    }, []);
+
+    // Cargar notificaciones iniciales
+    useEffect(() => {
+        if (!user) return;
+        apiFetch('/notifications')
+            .then(d => setNotifications(d.notifications || []))
+            .catch(() => {});
+    }, [user]);
 
     useEffect(() => {
         if (!user) {
-            if (socket) {
-                socket.disconnect();
-                setSocket(null);
-            }
+            if (socket) { socket.disconnect(); setSocket(null); }
             return;
         }
 
@@ -43,46 +72,35 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         const newSocket = io(SOCKET_URL, {
             auth: { token },
             transports: ['websocket'],
-            autoConnect: true
+            autoConnect: true,
         });
 
-        newSocket.on('connect', () => {
-            setIsConnected(true);
-            console.log('Socket conectado globalmente');
-        });
+        newSocket.on('connect', () => setIsConnected(true));
+        newSocket.on('disconnect', () => setIsConnected(false));
 
-        newSocket.on('disconnect', () => {
-            setIsConnected(false);
-            console.log('Socket desconectado globalmente');
-        });
-
+        // Mensajes de chat
         newSocket.on('new_message', (message: any) => {
-            // Incrementar contador si el remitente no es el usuario actual
             if (message.senderId !== user.id) {
                 setUnreadCount(prev => prev + 1);
-
-                // Añadir a notificaciones visuales temporales
-                const newNotif = {
-                    id: Date.now(),
-                    message: `Nuevo mensaje de ${message.sender?.name || 'un usuario'}`,
-                    type: 'message'
-                };
-                setNotifications(prev => [newNotif, ...prev.slice(0, 4)]);
-
-                // Mostrar alerta sonora básica si es posible o simplemente el toast visual
-                console.log('Notificación recibida:', message);
             }
         });
 
-        setSocket(newSocket);
+        // Notificaciones del sistema
+        newSocket.on('notification', (notif: AppNotification) => {
+            setNotifications(prev => [notif, ...prev.slice(0, 29)]);
+        });
 
-        return () => {
-            newSocket.close();
-        };
+        // Borrar notificaciones cuando otro abogado tomó el caso
+        newSocket.on('notification_remove', ({ refId }: { refId: string }) => {
+            setNotifications(prev => prev.filter(n => n.refId !== refId));
+        });
+
+        setSocket(newSocket);
+        return () => { newSocket.close(); };
     }, [user]);
 
     return (
-        <SocketContext.Provider value={{ socket, isConnected, unreadCount, notifications, clearUnread }}>
+        <SocketContext.Provider value={{ socket, isConnected, unreadCount, clearUnread, notifications, notifUnread, markNotifRead, markAllRead }}>
             {children}
         </SocketContext.Provider>
     );
@@ -90,8 +108,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
 export function useGlobalSocket() {
     const context = useContext(SocketContext);
-    if (context === undefined) {
-        throw new Error('useGlobalSocket must be used within a SocketProvider');
-    }
+    if (!context) throw new Error('useGlobalSocket must be used within a SocketProvider');
     return context;
 }

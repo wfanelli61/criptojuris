@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { C } from '@/lib/theme';
 
 /* ==================== TYPES ==================== */
@@ -172,6 +174,8 @@ function TiltCard({ children, style, className = '' }: { children: React.ReactNo
 
 /* ==================== MAIN PAGE ==================== */
 export default function LandingPage() {
+    const { user, loading } = useAuth();
+    const router = useRouter();
     const [services, setServices] = useState<Service[]>(mockServices);
     const [testimonials, setTestimonials] = useState<Testimonial[]>(mockTestimonials);
     const [lawyers, setLawyers] = useState<Lawyer[]>([]);
@@ -179,14 +183,61 @@ export default function LandingPage() {
 
     useScrollReveal();
 
+    // Si ya hay sesión iniciada, redirigir al dashboard
+    useEffect(() => {
+        if (!loading && user) router.replace('/dashboard');
+    }, [user, loading, router]);
+
     useEffect(() => {
         apiFetch('/public/services').then(d => d.services && setServices(d.services)).catch(() => { });
         apiFetch('/public/testimonials').then(d => d.testimonials && setTestimonials(d.testimonials)).catch(() => { });
         apiFetch('/public/lawyers?limit=10').then(d => d.lawyers && setLawyers(d.lawyers)).catch(() => { });
     }, []);
 
+    // Mientras verifica la sesión no renderiza nada para evitar flash
+    if (loading || user) return null;
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': ['LegalService', 'LocalBusiness'],
+        name: 'BufeteLegal Venezuela',
+        description: 'Bufete de abogados en Venezuela. Derecho penal, civil, laboral, familiar y corporativo. Más de 500 casos resueltos exitosamente.',
+        url: siteUrl,
+        telephone: '+58-212-000-0000',
+        email: 'contacto@bufetelegal.com',
+        address: {
+            '@type': 'PostalAddress',
+            addressCountry: 'VE',
+            addressLocality: 'Caracas',
+            addressRegion: 'Distrito Capital',
+        },
+        geo: { '@type': 'GeoCoordinates', latitude: 10.4806, longitude: -66.9036 },
+        openingHoursSpecification: [{
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'],
+            opens: '08:00', closes: '18:00',
+        }],
+        priceRange: '$$',
+        areaServed: { '@type': 'Country', name: 'Venezuela' },
+        hasOfferCatalog: {
+            '@type': 'OfferCatalog',
+            name: 'Servicios Jurídicos',
+            itemListElement: [
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Consulta Legal' } },
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Representación en Juicio' } },
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Derecho Penal' } },
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Derecho Civil' } },
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Derecho Laboral' } },
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'LOPNA / Familia' } },
+            ],
+        },
+        sameAs: [],
+    };
+
     return (
         <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
             {/* ==================== HERO ==================== */}
             <section
                 onMouseMove={(e) => setMousePos({ x: (e.clientX / window.innerWidth - 0.5) * 25, y: (e.clientY / window.innerHeight - 0.5) * 25 })}
@@ -223,13 +274,17 @@ export default function LandingPage() {
                             textShadow: '0 4px 12px rgba(0,0,0,0.5)',
                             color: C.white
                         }}>
-                            Su problema legal tiene solución.
+                            Damos solución a su requerimiento legal.
                             <br />
                             <span style={{
                                 background: `linear-gradient(135deg, ${C.yellowBright}, ${C.yellow}, ${C.orange})`,
                                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-                            }}>Nosotros la encontramos.</span>
+                                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+                                fontSize: 'clamp(1.6rem, 3.5vw, 2.8rem)',
+                                display: 'block',
+                                textAlign: 'center',
+                                marginTop: '0.5rem',
+                            }}>En este mundo de incertidumbre,<br />nosotros te damos certeza.</span>
                         </h1>
 
                         <p style={{ fontSize: '1.15rem', lineHeight: 1.85, color: C.textLight, maxWidth: '700px', margin: '0 auto 2.5rem' }}>
@@ -250,11 +305,23 @@ export default function LandingPage() {
                                 padding: '1.1rem 2.5rem', border: `2px solid ${C.yellow}40`, backdropFilter: 'blur(10px)',
                             }}>¿Cómo Funciona?</Link>
                         </div>
+
+                        {/* Trust Badges */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.75rem' }}>
+                            {[
+                                { icon: '🔒', text: 'Datos 100% seguros' },
+                                { icon: '✅', text: 'Abogados verificados' },
+                                { icon: '⭐', text: '+500 clientes satisfechos' },
+                                { icon: '🇻🇪', text: 'Plataforma venezolana' },
+                            ].map(b => (
+                                <span key={b.text} className="trust-badge">{b.icon} {b.text}</span>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Stats */}
                     <ParallaxSection speed={0.8}>
-                        <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '2.5rem', maxWidth: '800px', margin: '2.5rem auto 0' }}>
+                        <div className="stagger-children hero-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '2.5rem', maxWidth: '800px', margin: '2.5rem auto 0' }}>
                             {[
                                 { end: 500, suffix: '+', label: 'Casos ganados', color: C.yellow, icon: 'trophy' },
                                 { end: 20, suffix: '+', label: 'Años experiencia', color: C.yellow, icon: 'calendar' },
@@ -408,9 +475,9 @@ export default function LandingPage() {
                     <h2 className="section-title reveal-bounce" style={{ color: C.yellowLight }}>Historias Reales de Clientes</h2>
                     <p className="section-subtitle reveal" style={{ color: C.textMuted }}>Lea lo que dicen quienes confiaron en nosotros</p>
 
-                    <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                    <div className="stagger-children" style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center' }}>
                         {testimonials.map((t, i) => (
-                            <TiltCard key={t.id} style={{ padding: '1.75rem', background: C.offWhite, border: `1px solid rgba(0,0,0,0.05)`, borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', boxShadow: `0 10px 25px rgba(0,0,0,0.05)` }}>
+                            <div key={t.id} style={{ padding: '1.75rem', background: C.offWhite, border: `1px solid rgba(0,0,0,0.05)`, borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', boxShadow: `0 10px 25px rgba(0,0,0,0.05)`, width: '100%', maxWidth: '360px', flex: '0 1 360px' }}>
                                 <div style={{ marginBottom: '0.75rem', fontSize: '1rem', color: C.yellow }}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</div>
                                 <p style={{ color: C.navyDeep, lineHeight: 1.75, fontSize: '0.88rem', marginBottom: '1.25rem', flex: 1, fontStyle: 'italic', opacity: 0.9 }}>&ldquo;{t.content}&rdquo;</p>
                                 <div style={{ borderTop: `1px solid rgba(0,0,0,0.05)`, paddingTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -423,7 +490,7 @@ export default function LandingPage() {
                                     </div>
                                     <span style={{ marginLeft: 'auto', fontSize: '0.7rem', fontWeight: 700, color: '#059669', background: 'rgba(5,150,105,0.08)', padding: '0.25rem 0.6rem', borderRadius: 'var(--radius-full)', border: '1px solid rgba(5,150,105,0.2)', }}>✓ Verificado</span>
                                 </div>
-                            </TiltCard>
+                            </div>
                         ))}
                     </div>
                 </div>

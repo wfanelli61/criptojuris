@@ -5,13 +5,27 @@ import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
 
 export default function RegistroPage() {
-    const [step, setStep] = useState<'role' | 'form' | 'success'>('role');
+    const [step, setStep] = useState<'role' | 'form' | 'plan' | 'success'>('role');
     const [role, setRole] = useState<'CLIENTE' | 'ABOGADO' | ''>('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+
+    const getPasswordStrength = (pwd: string) => {
+        if (pwd.length === 0) return { score: 0, label: '', color: '' };
+        if (pwd.length < 6) return { score: 1, label: 'Muy débil', color: '#EF4444' };
+        if (pwd.length < 8) return { score: 2, label: 'Débil', color: '#F97316' };
+        const hasUpper = /[A-Z]/.test(pwd);
+        const hasNum = /[0-9]/.test(pwd);
+        const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+        const extras = [hasUpper, hasNum, hasSpecial].filter(Boolean).length;
+        if (extras >= 2) return { score: 4, label: 'Fuerte', color: '#10B981' };
+        if (extras === 1) return { score: 3, label: 'Buena', color: '#F0B429' };
+        return { score: 2, label: 'Débil', color: '#F97316' };
+    };
+    const strength = getPasswordStrength(password);
     const [loading, setLoading] = useState(false);
 
     const handleRoleSelect = (selectedRole: 'CLIENTE' | 'ABOGADO') => {
@@ -38,7 +52,11 @@ export default function RegistroPage() {
                 method: 'POST',
                 body: JSON.stringify({ email, password, name, role }),
             });
-            setStep('success');
+            if (role === 'ABOGADO') {
+                setStep('plan');
+            } else {
+                setStep('success');
+            }
         } catch (err: any) {
             setError(err.message || 'Error al registrar');
         }
@@ -52,7 +70,7 @@ export default function RegistroPage() {
             alignItems: 'center',
             justifyContent: 'center',
             background: 'linear-gradient(135deg, #060F1D 0%, #0C2340 50%, #1B3B5A 100%)',
-            paddingTop: '6rem',
+            paddingTop: '8rem',
         }}>
             {/* === STEP 1: ROLE SELECTION === */}
             {step === 'role' && (
@@ -307,6 +325,21 @@ export default function RegistroPage() {
                                 />
                             </div>
 
+                            {password.length > 0 && (
+                                <div style={{ marginBottom: '0.5rem', marginTop: '-0.25rem' }}>
+                                    <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+                                        {[1,2,3,4].map(i => (
+                                            <div key={i} style={{
+                                                flex: 1, height: '4px', borderRadius: '2px',
+                                                background: i <= strength.score ? strength.color : '#E5E7EB',
+                                                transition: 'background 0.3s ease',
+                                            }} />
+                                        ))}
+                                    </div>
+                                    <span style={{ fontSize: '0.7rem', color: strength.color, fontWeight: 600 }}>{strength.label}</span>
+                                </div>
+                            )}
+
                             <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151', display: 'block', marginBottom: '0.25rem' }}>
                                     Confirmar Contraseña
@@ -377,6 +410,104 @@ export default function RegistroPage() {
                             <Link href="/login" style={{ color: '#0C2340', fontWeight: 600 }}>Inicia sesión</Link>
                         </p>
                     </div>
+                </div>
+            )}
+
+            {/* === STEP 2.5: PLAN SELECTION (solo abogados) === */}
+            {step === 'plan' && (
+                <div style={{ width: '100%', maxWidth: '860px', animation: 'fadeInUp 0.5s ease forwards' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <div style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                            background: 'rgba(240,180,41,0.15)', border: '1px solid rgba(240,180,41,0.3)',
+                            padding: '0.35rem 1rem', borderRadius: '9999px',
+                            fontSize: '0.78rem', color: '#F0B429', fontWeight: 700, marginBottom: '1rem',
+                        }}>
+                            ✅ Cuenta creada exitosamente
+                        </div>
+                        <h2 style={{ fontSize: '1.6rem', color: '#fff', fontFamily: 'var(--font-heading)', marginBottom: '0.5rem' }}>
+                            Elige tu <span style={{ color: '#F0B429' }}>plan</span>
+                        </h2>
+                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.88rem' }}>
+                            14 días gratis en todos los planes · Sin tarjeta de crédito
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                        {[
+                            {
+                                name: 'Básico', price: '$19', period: '/mes',
+                                desc: 'Para comenzar a recibir clientes.',
+                                features: ['Hasta 10 citas/mes', 'Chat con clientes', 'Perfil en el directorio', 'Soporte por email'],
+                                highlighted: false,
+                            },
+                            {
+                                name: 'Pro', price: '$49', period: '/mes',
+                                desc: 'El favorito de los abogados activos.',
+                                features: ['Citas ilimitadas', 'Posición destacada', 'Estadísticas de perfil', 'Insignia Verificado Pro', 'Soporte prioritario'],
+                                highlighted: true,
+                            },
+                            {
+                                name: 'Premium', price: '$99', period: '/mes',
+                                desc: 'Para firmas y máxima visibilidad.',
+                                features: ['Portada del home', 'Hasta 5 abogados', 'Reportes detallados', 'Gerente dedicado'],
+                                highlighted: false,
+                            },
+                        ].map((plan) => (
+                            <div key={plan.name} style={{
+                                background: plan.highlighted ? 'linear-gradient(145deg, #1B4D8F, #0C2340)' : 'rgba(255,255,255,0.04)',
+                                border: plan.highlighted ? '2px solid #F0B429' : '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '1.25rem', padding: '1.75rem 1.5rem',
+                                display: 'flex', flexDirection: 'column', position: 'relative',
+                                boxShadow: plan.highlighted ? '0 0 30px rgba(240,180,41,0.15)' : 'none',
+                            }}>
+                                {plan.highlighted && (
+                                    <div style={{
+                                        position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)',
+                                        background: 'linear-gradient(135deg, #F0B429, #C68A0A)',
+                                        color: '#0C2340', fontSize: '0.65rem', fontWeight: 800,
+                                        padding: '0.25rem 1rem', borderRadius: '9999px',
+                                        textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap',
+                                    }}>⭐ Más Popular</div>
+                                )}
+                                <div style={{ marginBottom: '1.25rem' }}>
+                                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: plan.highlighted ? '#F0B429' : 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                                        Plan {plan.name}
+                                    </span>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.2rem', margin: '0.5rem 0' }}>
+                                        <span style={{ fontSize: '2.2rem', fontWeight: 900, color: plan.highlighted ? '#F0B429' : '#fff', lineHeight: 1 }}>{plan.price}</span>
+                                        <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.3rem' }}>{plan.period}</span>
+                                    </div>
+                                    <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)' }}>{plan.desc}</p>
+                                </div>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+                                    {plan.features.map(f => (
+                                        <li key={f} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.82rem', color: 'rgba(255,255,255,0.8)' }}>
+                                            <span style={{ color: '#F0B429', fontWeight: 700, flexShrink: 0 }}>✓</span> {f}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <button
+                                    onClick={() => setStep('success')}
+                                    style={{
+                                        display: 'block', width: '100%', padding: '0.75rem',
+                                        background: plan.highlighted ? 'linear-gradient(135deg, #F0B429, #C68A0A)' : 'transparent',
+                                        border: plan.highlighted ? 'none' : '1.5px solid rgba(240,180,41,0.5)',
+                                        borderRadius: '0.75rem', cursor: 'pointer',
+                                        color: plan.highlighted ? '#0C2340' : '#F0B429',
+                                        fontWeight: 700, fontSize: '0.88rem',
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    Elegir Plan {plan.name}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <p style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
+                        Puedes cambiar de plan en cualquier momento desde tu panel de control
+                    </p>
                 </div>
             )}
 

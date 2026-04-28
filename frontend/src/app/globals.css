@@ -29,8 +29,8 @@
 
   /* Neutrals */
   --color-white: #FFFFFF;
-  --color-bg: #F0F2F7;
-  --color-bg-alt: #E5E9F0;
+  --color-bg: #0a1929;
+  --color-bg-alt: #0d2137;
   --color-text: #0B1120;
   --color-text-light: #4B5563;
   --color-text-muted: #9CA3AF;
@@ -1054,6 +1054,26 @@ img {
   .wave-divider svg {
     height: 40px;
   }
+
+  /* Hero stats: 2 columnas en tablet */
+  .hero-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Navbar hamburger visible en mobile */
+  .nav-hamburger {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  /* Ocultar nav links en mobile */
+  .nav-links-desktop {
+    display: none !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1077,4 +1097,340 @@ img {
   .physics-carousel-item {
     width: 240px;
   }
+
+  /* Hero stats: 1 columna en móvil muy pequeño */
+  .hero-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+}
+
+/* ============================
+   SKELETON / SHIMMER
+   ============================ */
+@keyframes shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* ============================
+   PRICING CARDS
+   ============================ */
+.pricing-card-hover:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+/* ============================
+   STAR RATING
+   ============================ */
+.star-rating {
+  color: #F0B429;
+  letter-spacing: -1px;
+  font-size: 0.85rem;
+}
+
+/* ============================
+   TRUST BADGE
+   ============================ */
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+}
+
+/* ============================
+   SIDEBAR DIVIDER
+   ============================ */
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 0.5rem 1rem;
+}
+
+/* ============================
+   DASHBOARD DARK THEME OVERRIDES
+   Aplicadas globalmente para que alcancen componentes hijo
+   ============================ */
+
+/* Tipografía */
+.dashboard-content h1,
+.dashboard-content h2,
+.dashboard-content h3,
+.dashboard-content h4 { color: #F1F5F9 !important; }
+
+.dashboard-content p,
+.dashboard-content span:not([class]),
+.dashboard-content label { color: rgba(255,255,255,0.7); }
+
+/* Cards */
+.dashboard-content .card {
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: none !important;
+  color: rgba(255,255,255,0.8) !important;
+}
+.dashboard-content .card:hover {
+  transform: none !important;
+  border-color: rgba(240,180,41,0.3) !important;
+  box-shadow: 0 0 0 1px rgba(240,180,41,0.15), 0 8px 24px rgba(0,0,0,0.3) !important;
+}
+
+/* Tablas */
+.dashboard-content .table-container {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-radius: 1rem !important;
+}
+.dashboard-content .table {
+  background: transparent !important;
+}
+.dashboard-content .table thead {
+  background: transparent !important;
+}
+.dashboard-content .table th {
+  background: rgba(255,255,255,0.04) !important;
+  color: rgba(255,255,255,0.4) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.08em !important;
+}
+.dashboard-content .table tbody tr {
+  background: transparent !important;
+}
+.dashboard-content .table td {
+  color: rgba(255,255,255,0.8) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+  background: transparent !important;
+}
+.dashboard-content .table tbody tr:hover td {
+  background: rgba(255,255,255,0.03) !important;
+}
+
+/* Formularios */
+.dashboard-content .form-label {
+  color: rgba(255,255,255,0.5) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+}
+.dashboard-content input,
+.dashboard-content textarea,
+.dashboard-content select {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #F1F5F9 !important;
+  border-radius: 0.6rem !important;
+}
+.dashboard-content input::placeholder,
+.dashboard-content textarea::placeholder {
+  color: rgba(255,255,255,0.25) !important;
+}
+.dashboard-content input:focus,
+.dashboard-content textarea:focus,
+.dashboard-content select:focus {
+  border-color: rgba(240,180,41,0.5) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(240,180,41,0.12) !important;
+}
+.dashboard-content option {
+  background: #0d2137 !important;
+  color: #F1F5F9 !important;
+}
+
+/* Botones */
+.dashboard-content .btn-primary {
+  background: linear-gradient(135deg, #F0B429, #C68A0A) !important;
+  color: #0C2340 !important;
+  box-shadow: 0 4px 16px rgba(240,180,41,0.35) !important;
+  border: none !important;
+}
+.dashboard-content .btn-primary:hover {
+  background: linear-gradient(135deg, #F7D070, #F0B429) !important;
+  box-shadow: 0 6px 24px rgba(240,180,41,0.5) !important;
+  transform: translateY(-1px) !important;
+}
+.dashboard-content .btn-secondary {
+  background: rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow: none !important;
+}
+.dashboard-content .btn-secondary:hover {
+  background: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  transform: none !important;
+}
+.dashboard-content .btn-danger {
+  background: rgba(239,68,68,0.12) !important;
+  color: #F87171 !important;
+  border: 1px solid rgba(239,68,68,0.25) !important;
+  box-shadow: none !important;
+}
+.dashboard-content .btn-danger:hover {
+  background: rgba(239,68,68,0.2) !important;
+  box-shadow: 0 4px 16px rgba(239,68,68,0.2) !important;
+  transform: none !important;
+}
+.dashboard-content .btn-success {
+  background: rgba(16,185,129,0.12) !important;
+  color: #34D399 !important;
+  border: 1px solid rgba(16,185,129,0.25) !important;
+  box-shadow: none !important;
+}
+.dashboard-content .btn-success:hover {
+  background: rgba(16,185,129,0.2) !important;
+  transform: none !important;
+}
+.dashboard-content .btn-sm {
+  padding: 0.35rem 0.75rem !important;
+  font-size: 0.78rem !important;
+  border-radius: 0.5rem !important;
+}
+.dashboard-content .btn-primary:disabled {
+  opacity: 0.5 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Badges de estado */
+.dashboard-content .badge-pendiente  { background: rgba(251,191,36,0.15)  !important; color: #FBBF24 !important; border-radius: 9999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 600; }
+.dashboard-content .badge-confirmada { background: rgba(52,211,153,0.15)  !important; color: #34D399 !important; border-radius: 9999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 600; }
+.dashboard-content .badge-cancelada  { background: rgba(248,113,113,0.15) !important; color: #F87171 !important; border-radius: 9999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 600; }
+.dashboard-content .badge-finalizada { background: rgba(96,165,250,0.15)  !important; color: #60A5FA !important; border-radius: 9999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 600; }
+/* ============================
+   DASHBOARD RESPONSIVE — MOBILE FIRST
+   ============================ */
+
+/* ── Tablas: scroll horizontal + texto visible ── */
+.dashboard-content .table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.dashboard-content .table {
+  min-width: 600px;
+}
+
+/* ── Filtros: stack vertical en móvil ── */
+.dash-filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+.dash-filters input,
+.dash-filters select {
+  flex: 1 1 140px;
+  min-width: 0 !important;
+}
+.dash-filters button {
+  flex-shrink: 0;
+}
+
+/* ── Grids de métricas ── */
+.dash-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Formularios: 2 cols → 1 col en móvil ── */
+.dash-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  /* Encabezados de página */
+  .dashboard-content h1 { font-size: 1.25rem !important; }
+
+  /* Tablas: reduce padding de celdas */
+  .dashboard-content .table th,
+  .dashboard-content .table td {
+    padding: 0.55rem 0.65rem !important;
+    font-size: 0.78rem !important;
+    white-space: nowrap;
+  }
+
+  /* Ocultar columnas menos importantes en pantallas pequeñas */
+  .dashboard-content .col-hide-mobile {
+    display: none !important;
+  }
+
+  /* Filtros: stack vertical */
+  .dash-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dash-filters input,
+  .dash-filters select,
+  .dash-filters button {
+    width: 100% !important;
+    flex: none !important;
+  }
+
+  /* Cards: sin hover transform en móvil */
+  .dashboard-content .card:hover {
+    transform: none !important;
+  }
+
+  /* Formularios: siempre 1 columna */
+  .dash-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Header de página con botón: stack */
+  .dash-page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+  .dash-page-header button,
+  .dash-page-header a {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-content {
+    padding: 0.75rem !important;
+  }
+  .dashboard-content .table th,
+  .dashboard-content .table td {
+    padding: 0.45rem 0.5rem !important;
+    font-size: 0.72rem !important;
+  }
+  .dash-metrics {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Botones: tamaño táctil mínimo 44px */
+  .dashboard-content .btn {
+    min-height: 44px;
+  }
+  .dashboard-content .btn-sm {
+    min-height: 36px;
+  }
+}
+
+/* ── Utilidades responsive globales ── */
+@media (max-width: 600px) {
+  /* Ocultar columnas opcionales en tablas */
+  .col-optional { display: none !important; }
+  /* Inputs al 100% en formularios inline */
+  .inline-form { flex-direction: column !important; }
+  .inline-form input,
+  .inline-form select,
+  .inline-form button { width: 100% !important; max-width: none !important; }
 }

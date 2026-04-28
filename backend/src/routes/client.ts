@@ -17,7 +17,7 @@ router.use(requireRole('CLIENTE'));
 router.get('/me', asyncHandler(async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
         where: { id: req.user!.userId },
-        select: { id: true, email: true, name: true, phone: true, role: true, createdAt: true },
+        select: { id: true, email: true, name: true, phone: true, cedula: true, rif: true, estado: true, direccion: true, role: true, createdAt: true },
     });
     res.json({ user });
 }));
@@ -28,7 +28,7 @@ router.put('/me', asyncHandler(async (req: Request, res: Response) => {
     const user = await prisma.user.update({
         where: { id: req.user!.userId },
         data,
-        select: { id: true, email: true, name: true, phone: true, role: true },
+        select: { id: true, email: true, name: true, phone: true, cedula: true, rif: true, estado: true, direccion: true, role: true },
     });
     res.json({ user });
 }));
@@ -72,8 +72,6 @@ router.get('/me/appointments', asyncHandler(async (req: Request, res: Response) 
 
 // POST /clients/me/appointments
 router.post('/me/appointments', asyncHandler(async (req: Request, res: Response) => {
-    console.log("=== APPOINTMENT REQUEST ===");
-    console.log("USER:", req.user);
     const data = createAppointmentSchema.parse(req.body);
 
     const service = await prisma.service.findUnique({ where: { id: data.serviceId } });

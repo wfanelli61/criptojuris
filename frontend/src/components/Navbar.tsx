@@ -39,30 +39,43 @@ export default function Navbar() {
                 {/* Logo */}
                 <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }} aria-label="Inicio">
                     <div style={{
-                        width: '36px', height: '36px',
-                        background: 'linear-gradient(135deg, #E88C2A, #F5A623)',
+                        width: '38px', height: '38px',
+                        background: 'linear-gradient(135deg, #C68A0A, #F0B429)',
                         borderRadius: '10px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '1.1rem',
-                        boxShadow: '0 2px 10px rgba(232,140,42,0.35)',
+                        boxShadow: '0 2px 12px rgba(240,180,41,0.4)',
+                        flexShrink: 0,
                     }}>
-                        ⚖️
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L12 4" stroke="#0C2340" strokeWidth="2" strokeLinecap="round"/>
+                            <path d="M5 4H19" stroke="#0C2340" strokeWidth="2" strokeLinecap="round"/>
+                            <path d="M12 4L12 20" stroke="#0C2340" strokeWidth="2" strokeLinecap="round"/>
+                            <path d="M5 4L2 10C2 10 2 13 5.5 13C9 13 9 10 9 10L6 4" stroke="#0C2340" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M19 4L16 10C16 10 16 13 19.5 13C23 13 23 10 23 10L20 4" stroke="#0C2340" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M9 20H15" stroke="#0C2340" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
                     </div>
-                    <span style={{
-                        fontFamily: 'var(--font-heading)',
-                        fontSize: '1.4rem',
-                        fontWeight: 700,
-                        color: 'var(--color-white)',
-                        letterSpacing: '-0.02em',
-                    }}>
-                        Bufete<span style={{ color: 'var(--color-gold)' }}>Legal</span>
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+                        <span style={{
+                            fontFamily: 'var(--font-heading)',
+                            fontSize: '1.35rem',
+                            fontWeight: 800,
+                            color: 'var(--color-white)',
+                            letterSpacing: '-0.03em',
+                        }}>
+                            Bufete<span style={{ color: 'var(--color-gold)' }}>Legal</span>
+                        </span>
+                        <span style={{ fontSize: '0.55rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 600 }}>
+                            Venezuela
+                        </span>
+                    </div>
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} className="nav-desktop">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} className="nav-desktop nav-links-desktop">
                     {[
                         { href: '/#servicios', label: 'Servicios' },
+                        { href: '/blog', label: 'Blog' },
                         { href: '/abogados', label: 'Abogados' },
                         { href: '/#testimonios', label: 'Testimonios' },
                         { href: '/#nosotros', label: 'Nosotros' },
@@ -137,9 +150,13 @@ export default function Navbar() {
                         color: 'var(--color-white)',
                         fontSize: '1.3rem',
                         cursor: 'pointer',
-                        padding: '0.4rem 0.6rem',
+                        padding: 0,
+                        width: '44px',
+                        height: '44px',
                         borderRadius: 'var(--radius-md)',
                         transition: 'all 0.3s ease',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }}
                     className="nav-hamburger"
                 >
@@ -161,6 +178,7 @@ export default function Navbar() {
                 }} className="nav-mobile">
                     {[
                         { href: '/#servicios', label: 'Servicios' },
+                        { href: '/blog', label: 'Blog' },
                         { href: '/abogados', label: 'Abogados' },
                         { href: '/#testimonios', label: 'Testimonios' },
                         { href: '/#nosotros', label: 'Nosotros' },

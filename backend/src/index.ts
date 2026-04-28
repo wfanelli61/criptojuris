@@ -16,6 +16,17 @@ import clientRoutes from './routes/client';
 import adminRoutes from './routes/admin';
 import verificationRoutes from './routes/verification';
 import chatRoutes from './routes/chat';
+import casesRoutes from './routes/cases';
+import legalNormsRoutes from './routes/legalNorms';
+import blogRoutes from './routes/blog';
+import supportRoutes from './routes/support';
+import plansRoutes from './routes/plans';
+import reportsRoutes from './routes/reports';
+import notificationsRoutes from './routes/notifications';
+import reviewsRoutes from './routes/reviews';
+import availabilityRoutes from './routes/availability';
+import aiRoutes from './routes/ai';
+import paymentsRoutes from './routes/payments';
 import { initSocket } from './socket';
 
 const app = express();
@@ -29,13 +40,28 @@ app.use(compression());
 
 // Middlewares de Seguridad
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // Permite servir archivos (fotos) a otros dominios
-    contentSecurityPolicy: false, // Desactivado para simplificar el desarrollo de Next.js
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "blob:", "https:"],
+            connectSrc: [
+                "'self'",
+                "https:",
+                ...(config.nodeEnv !== 'production' ? ["http://localhost:4000", "ws://localhost:4000"] : []),
+            ],
+            fontSrc: ["'self'", "https:", "data:"],
+            objectSrc: ["'none'"],
+            frameSrc: ["'none'"],
+        },
+    },
 }));
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 1000, // Aumentado para desarrollo y pruebas
+    windowMs: 15 * 60 * 1000,
+    max: config.nodeEnv === 'production' ? 100 : 500,
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res, next, options) => {
@@ -67,6 +93,17 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/cases', casesRoutes);
+app.use('/api/legal-norms', legalNormsRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/plans', plansRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/availability', availabilityRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/payments', paymentsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -77,7 +114,7 @@ app.get('/api/health', (_req, res) => {
 app.use(errorHandler);
 
 // Iniciar servidor
-httpServer.listen(config.port, () => {
+httpServer.listen(config.port, '0.0.0.0', () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${config.port}`);
     console.log(`📋 Entorno: ${config.nodeEnv}`);
     console.log(`🔒 Orígenes CORS permitidos: ${Array.isArray(config.corsOrigin) ? config.corsOrigin.join(', ') : config.corsOrigin}`);

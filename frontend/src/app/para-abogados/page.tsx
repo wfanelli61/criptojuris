@@ -148,6 +148,140 @@ export default function ParaAbogadosPage() {
                 </div>
             </section>
 
+            {/* ==================== PLANES Y PRECIOS ==================== */}
+            <section className="section" style={{ background: 'linear-gradient(180deg, #060F1D 0%, #0C2340 100%)' }}>
+                <div className="container">
+                    <h2 className="section-title reveal" style={{ color: '#fff' }}>Planes para abogados</h2>
+                    <p className="section-subtitle reveal" style={{ color: 'rgba(255,255,255,0.6)' }}>Sin contratos. Cancele cuando quiera. Empiece gratis 14 días.</p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '960px', margin: '0 auto' }}>
+                        {/* Plan Básico */}
+                        <div className="reveal" style={{
+                            background: 'rgba(255,255,255,0.04)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '1.25rem',
+                            padding: '2.25rem 1.75rem',
+                            display: 'flex', flexDirection: 'column',
+                            transition: 'border-color 0.3s ease',
+                        }}>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Plan Básico</span>
+                                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.25rem', margin: '0.6rem 0' }}>
+                                    <span style={{ fontSize: '2.8rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>$19</span>
+                                    <span style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.4rem' }}>/mes</span>
+                                </div>
+                                <p style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>Ideal para abogados que comienzan a recibir clientes en línea.</p>
+                            </div>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.75rem', display: 'flex', flexDirection: 'column', gap: '0.65rem', flex: 1 }}>
+                                {['Perfil profesional verificado', 'Hasta 10 citas al mes', 'Chat con clientes', 'Aparición en el directorio', 'Soporte por email'].map(f => (
+                                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>
+                                        <span style={{ color: '#F0B429', fontWeight: 700 }}>✓</span> {f}
+                                    </li>
+                                ))}
+                            </ul>
+                            <a href="/registro" style={{
+                                display: 'block', textAlign: 'center', padding: '0.8rem',
+                                border: '1.5px solid rgba(240,180,41,0.5)', borderRadius: '0.75rem',
+                                color: '#F0B429', fontWeight: 700, fontSize: '0.9rem',
+                                textDecoration: 'none', transition: 'all 0.2s',
+                            }}
+                                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(240,180,41,0.12)'; e.currentTarget.style.borderColor = '#F0B429'; }}
+                                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(240,180,41,0.5)'; }}
+                            >
+                                Comenzar gratis 14 días
+                            </a>
+                        </div>
+
+                        {/* Plan Pro - DESTACADO */}
+                        <div className="reveal" style={{
+                            background: 'linear-gradient(145deg, #1B4D8F 0%, #0C2340 100%)',
+                            border: '2px solid #F0B429',
+                            borderRadius: '1.25rem',
+                            padding: '2.25rem 1.75rem',
+                            display: 'flex', flexDirection: 'column',
+                            position: 'relative',
+                            boxShadow: '0 0 40px rgba(240,180,41,0.15), 0 20px 40px rgba(0,0,0,0.4)',
+                            transform: 'translateY(-6px)',
+                        }}>
+                            <div style={{
+                                position: 'absolute', top: '-13px', left: '50%', transform: 'translateX(-50%)',
+                                background: 'linear-gradient(135deg, #F0B429, #C68A0A)',
+                                color: '#0C2340', fontSize: '0.7rem', fontWeight: 800,
+                                padding: '0.28rem 1.1rem', borderRadius: '9999px',
+                                textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap',
+                            }}>
+                                ⭐ Más Popular
+                            </div>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#F0B429', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Plan Pro</span>
+                                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.25rem', margin: '0.6rem 0' }}>
+                                    <span style={{ fontSize: '2.8rem', fontWeight: 900, color: '#F0B429', lineHeight: 1 }}>$49</span>
+                                    <span style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)', marginBottom: '0.4rem' }}>/mes</span>
+                                </div>
+                                <p style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>Para abogados activos que quieren maximizar su visibilidad.</p>
+                            </div>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.75rem', display: 'flex', flexDirection: 'column', gap: '0.65rem', flex: 1 }}>
+                                {['Todo lo del Plan Básico', 'Citas ilimitadas', 'Posición destacada en búsquedas', 'Estadísticas de perfil', 'Consulta inicial gratuita configurable', 'Soporte prioritario', 'Insignia "Verificado Pro"'].map(f => (
+                                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)' }}>
+                                        <span style={{ color: '#F0B429', fontWeight: 700 }}>✓</span> {f}
+                                    </li>
+                                ))}
+                            </ul>
+                            <a href="/registro" style={{
+                                display: 'block', textAlign: 'center', padding: '0.85rem',
+                                background: 'linear-gradient(135deg, #F0B429, #C68A0A)',
+                                borderRadius: '0.75rem',
+                                color: '#0C2340', fontWeight: 800, fontSize: '0.95rem',
+                                textDecoration: 'none',
+                            }}>
+                                Comenzar gratis 14 días →
+                            </a>
+                        </div>
+
+                        {/* Plan Premium */}
+                        <div className="reveal" style={{
+                            background: 'rgba(255,255,255,0.04)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '1.25rem',
+                            padding: '2.25rem 1.75rem',
+                            display: 'flex', flexDirection: 'column',
+                            transition: 'border-color 0.3s ease',
+                        }}>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Plan Premium</span>
+                                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.25rem', margin: '0.6rem 0' }}>
+                                    <span style={{ fontSize: '2.8rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>$99</span>
+                                    <span style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.4rem' }}>/mes</span>
+                                </div>
+                                <p style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>Para firmas y abogados de alto volumen con presencia máxima.</p>
+                            </div>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.75rem', display: 'flex', flexDirection: 'column', gap: '0.65rem', flex: 1 }}>
+                                {['Todo lo del Plan Pro', 'Perfil en portada del home', 'Múltiples abogados (hasta 5)', 'Gestión de reputación asistida', 'Reportes mensuales detallados', 'Gerente de cuenta dedicado'].map(f => (
+                                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>
+                                        <span style={{ color: '#F0B429', fontWeight: 700 }}>✓</span> {f}
+                                    </li>
+                                ))}
+                            </ul>
+                            <a href="/registro" style={{
+                                display: 'block', textAlign: 'center', padding: '0.8rem',
+                                border: '1.5px solid rgba(240,180,41,0.5)', borderRadius: '0.75rem',
+                                color: '#F0B429', fontWeight: 700, fontSize: '0.9rem',
+                                textDecoration: 'none', transition: 'all 0.2s',
+                            }}
+                                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(240,180,41,0.12)'; e.currentTarget.style.borderColor = '#F0B429'; }}
+                                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(240,180,41,0.5)'; }}
+                            >
+                                Contactar ventas
+                            </a>
+                        </div>
+                    </div>
+
+                    <p className="reveal" style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.78rem', color: 'rgba(255,255,255,0.3)' }}>
+                        Precios en USD · Tarjeta, transferencia o criptomonedas · Cancela en cualquier momento
+                    </p>
+                </div>
+            </section>
+
             {/* ==================== CTA FINAL ==================== */}
             <section className="section" style={{
                 background: 'linear-gradient(135deg, #0C2340, #1B4D8F)',

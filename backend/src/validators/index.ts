@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+/** Extrae el primer valor de un query param que puede ser string | string[] */
+export const qs = (val: unknown): string | undefined =>
+    Array.isArray(val) ? (val[0] as string) : (val as string | undefined);
+
 export const registerSchema = z.object({
     email: z.string().email('Email inválido'),
     password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
@@ -13,8 +17,12 @@ export const loginSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-    name: z.string().min(2).optional(),
-    phone: z.string().optional(),
+    name:      z.string().min(2).optional(),
+    phone:     z.string().optional(),
+    cedula:    z.string().optional(),
+    rif:       z.string().optional(),
+    estado:    z.string().optional(),
+    direccion: z.string().optional(),
 });
 
 export const updateLawyerProfileSchema = z.object({
