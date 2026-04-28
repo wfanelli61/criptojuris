@@ -28,6 +28,8 @@ import availabilityRoutes from './routes/availability';
 import aiRoutes from './routes/ai';
 import paymentsRoutes from './routes/payments';
 import { initSocket } from './socket';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const app = express();
 const httpServer = createServer(app);
@@ -114,10 +116,26 @@ app.get('/api/health', (_req, res) => {
 app.use(errorHandler);
 
 // Iniciar servidor
-httpServer.listen(config.port, '0.0.0.0', () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${config.port}`);
-    console.log(`📋 Entorno: ${config.nodeEnv}`);
-    console.log(`🔒 Orígenes CORS permitidos: ${Array.isArray(config.corsOrigin) ? config.corsOrigin.join(', ') : config.corsOrigin}`);
+const prismaSetup = new PrismaClient();
+httpServer.listen(config.port, '0.0.0.0', async () => {
+    console.log(`Servidor corriendo en http://localhost:${config.port}`);
+    console.log(`Entorno: ${config.nodeEnv}`);
+
+    // Crear admin por defecto si no existe
+    try {
+        const exists = await prismaSetup.user.findUnique({ where: { email: 'admin@bufete.com' } });
+        if (!exists) {
+            const hash = await bcrypt.hash('123456', 10);
+            await prismaSetup.user.create({
+                data: { email: 'admin@bufete.com', passwordHash: hash, name: 'Administrador', role: 'ADMIN', emailVerified: true },
+            });
+            console.log('Admin creado: admin@bufete.com / 123456');
+        }
+    } catch (e) {
+        console.error('Setup admin error:', e);
+    } finally {
+        await prismaSetup.$disconnect();
+    }
 });
 
 export default app;
