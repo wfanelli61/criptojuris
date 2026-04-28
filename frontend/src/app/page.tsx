@@ -407,9 +407,18 @@ export default function LandingPage() {
 
                     <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
                         {[
-                            { emoji: '⚖️', title: 'Especialización Real', text: 'Cada caso es atendido por un especialista en esa área del derecho con años de experiencia comprobada.', highlight: 'Cada abogado domina su especialidad' },
-                            { emoji: '💬', title: 'Comunicación Clara', text: 'Le explicamos todo en palabras simples, sin sorpresas ni jerga legal confusa. Siempre disponibles.', highlight: 'Sin jerga legal confusa' },
-                            { emoji: '🔒', title: 'Transparencia Total', text: 'Antes de iniciar, conoce exactamente los costos, plazos y probabilidades de éxito de su caso.', highlight: 'Sin costos ocultos' },
+                            {
+                                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2.5M18.5 7H21"/></svg>,
+                                title: 'Especialización Real', text: 'Cada caso es atendido por un especialista en esa área del derecho con años de experiencia comprobada.', highlight: 'Cada abogado domina su especialidad'
+                            },
+                            {
+                                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h6"/></svg>,
+                                title: 'Comunicación Clara', text: 'Le explicamos todo en palabras simples, sin sorpresas ni jerga legal confusa. Siempre disponibles.', highlight: 'Sin jerga legal confusa'
+                            },
+                            {
+                                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>,
+                                title: 'Transparencia Total', text: 'Antes de iniciar, conoce exactamente los costos, plazos y probabilidades de éxito de su caso.', highlight: 'Sin costos ocultos'
+                            },
                         ].map((item, i) => (
                             <TiltCard key={item.title} style={{
                                 background: 'rgba(255,255,255,0.04)',
@@ -422,11 +431,11 @@ export default function LandingPage() {
                             }}>
                                 <div style={{
                                     width: '72px', height: '72px', borderRadius: '22px',
-                                    background: `rgba(240,180,41,0.12)`,
-                                    border: `1px solid rgba(240,180,41,0.25)`,
+                                    background: `rgba(240,180,41,0.1)`,
+                                    border: `1px solid rgba(240,180,41,0.2)`,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    marginBottom: '1.5rem', fontSize: '2rem', flexShrink: 0,
-                                }}>{item.emoji}</div>
+                                    marginBottom: '1.5rem', flexShrink: 0,
+                                }}>{item.icon}</div>
                                 <h3 style={{ fontSize: '1.25rem', marginBottom: '0.6rem', color: C.white, fontWeight: 800 }}>{item.title}</h3>
                                 <div style={{ marginBottom: '1.2rem' }}>
                                     <span style={{ display: 'inline-block', background: `rgba(240,180,41,0.12)`, color: C.yellow, padding: '0.3rem 0.9rem', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 700, border: `1px solid rgba(240,180,41,0.25)` }}>{item.highlight}</span>
@@ -446,10 +455,17 @@ export default function LandingPage() {
 
                     <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
                         {services.map((service, i) => {
-                            const AREA_EMOJI: Record<string, string> = { PENAL: '🔨', CIVIL: '📋', LOPNA: '👨‍👩‍👧', CORPORATIVO: '🏢', GENERAL: '⚖️' }
                             const AREA_COLOR: Record<string, string> = { PENAL: '#F87171', CIVIL: '#60A5FA', LOPNA: '#C084FC', CORPORATIVO: '#F0B429', GENERAL: '#34D399' }
                             const areaColor = AREA_COLOR[service.legalArea ?? 'GENERAL'] || C.yellow
-                            const areaEmoji = AREA_EMOJI[service.legalArea ?? 'GENERAL'] || '⚖️'
+                            const areaRgb: Record<string, string> = { PENAL: '248,113,113', CIVIL: '96,165,250', LOPNA: '192,132,252', CORPORATIVO: '240,180,41', GENERAL: '52,211,153' }
+                            const rgb = areaRgb[service.legalArea ?? 'GENERAL'] || '240,180,41'
+                            const AREA_ICON: Record<string, React.ReactNode> = {
+                                PENAL:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>,
+                                CIVIL:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2.5M18.5 7H21"/></svg>,
+                                LOPNA:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+                                CORPORATIVO: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+                                GENERAL:     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+                            }
                             return (
                             <TiltCard key={service.id} style={{
                                 padding: '1.75rem', cursor: 'default', borderRadius: 'var(--radius-xl)',
@@ -460,8 +476,8 @@ export default function LandingPage() {
                                 boxShadow: `0 10px 25px rgba(0,0,0,0.2)`,
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                                    <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: `rgba(${areaColor === '#F87171' ? '248,113,113' : areaColor === '#60A5FA' ? '96,165,250' : areaColor === '#C084FC' ? '192,132,252' : '240,180,41'},0.12)`, border: `1px solid ${areaColor}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem' }}>
-                                        {areaEmoji}
+                                    <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: `rgba(${rgb},0.12)`, border: `1px solid rgba(${rgb},0.25)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {AREA_ICON[service.legalArea ?? 'GENERAL'] || AREA_ICON['GENERAL']}
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
