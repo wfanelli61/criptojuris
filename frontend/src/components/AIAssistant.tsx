@@ -35,9 +35,10 @@ export default function AIAssistant({ role }: { role: string }) {
         try {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 55000);
+            const history = messages.slice(-6).map(m => ({ role: m.role, text: m.text }));
             const data = await apiFetch('/ai/assistant', {
                 method: 'POST',
-                body: JSON.stringify({ message: userMsg }),
+                body: JSON.stringify({ message: userMsg, history }),
                 signal: controller.signal,
             });
             clearTimeout(timeout);

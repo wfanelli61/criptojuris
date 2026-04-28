@@ -132,10 +132,14 @@ ${details || 'Ninguno'}`;
 // IA con acceso a la BD del usuario — responde preguntas con datos reales
 const assistantSchema = z.object({
     message: z.string().min(1).max(1000),
+    history: z.array(z.object({
+        role: z.enum(['user', 'assistant']),
+        text: z.string().max(2000),
+    })).optional().default([]),
 });
 
 router.post('/assistant', asyncHandler(async (req: Request, res: Response) => {
-    const { message } = assistantSchema.parse(req.body);
+    const { message, history } = assistantSchema.parse(req.body);
     const { userId, role } = req.user!;
 
     const today = new Date();
@@ -199,56 +203,38 @@ PRESUPUESTOS APROBADOS PENDIENTES DE CONTRATO (${pendingBudgets.length}):
 ${pendingBudgets.map(c => `- "${c.title}" | ${c.client.name}`).join('\n') || 'Ninguno'}`;
 
     } else if (role === 'ADMIN') {
-        const [totalUsers, totalCases, todayCitas, casesByArea, lawyerCases] = await Promise.all([
+        const [totalUsers, totalCases, casesByArea, lawyerStats, allCases] = await Promise.all([
             prisma.user.groupBy({ by: ['role' as any], _count: true }),
             prisma.legalCase.groupBy({ by: ['status' as any], _count: true }),
-            prisma.appointmentRequest.findMany({
-                where: { preferredDate: { gte: todayStart, lt: todayEnd } },
-                include: { client: { select: { name: true } }, lawyer: { select: { name: true } }, service: { select: { name: true } } },
-                orderBy: { preferredDate: 'asc' }, take: 10,
-            }),
             prisma.legalCase.groupBy({ by: ['legalArea' as any], _count: true }),
             prisma.user.findMany({
                 where: { role: 'ABOGADO' },
                 select: {
                     name: true,
-                    lawyerCases: { select: { id: true, status: true, title: true, legalArea: true } },
-                    lawyerAppointments: { where: { preferredDate: { gte: todayStart, lt: weekEnd } }, select: { id: true } },
+                    lawyerCases: { select: { status: true }, where: { status: { notIn: ['CERRADO','CANCELADO'] } } },
                 },
                 take: 20,
+            }),
+            prisma.legalCase.findMany({
+                select: { title: true, legalArea: true, status: true, lawyer: { select: { name: true } }, client: { select: { name: true } } },
+                orderBy: { updatedAt: 'desc' }, take: 30,
             }),
         ]);
 
         context = `ROL: Administrador del Bufete
-FECHA HOY: ${today.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' })}
+FECHA: ${today.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' })}
 
-USUARIOS DEL SISTEMA:
-${totalUsers.map((u: any) => `- ${u.role}: ${u._count}`).join('\n')}
+USUARIOS: ${totalUsers.map((u: any) => `${u.role}=${u._count}`).join(', ')}
 
-CASOS POR ESTADO:
-${totalCases.map((c: any) => `- ${c.status}: ${c._count}`).join('\n')}
+CASOS POR ESTADO: ${totalCases.map((c: any) => `${c.status}=${c._count}`).join(', ')}
 
-ÁREAS MÁS ACTIVAS:
-${casesByArea.map((a: any) => `- ${a.legalArea}: ${a._count} casos`).join('\n')}
+ÁREAS: ${casesByArea.map((a: any) => `${a.legalArea}=${a._count}`).join(', ')}
 
-CITAS DE HOY (${todayCitas.length}):
-${todayCitas.length === 0 ? 'Sin citas hoy.' : todayCitas.map(c =>
-    `- ${c.preferredDate ? new Date(c.preferredDate).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'} | ${c.client.name} con ${c.lawyer?.name || 'Sin asignar'} | ${c.service.name}`
-).join('\n')}
+ABOGADOS Y SUS CASOS ACTIVOS:
+${lawyerStats.map((l: any) => `- ${l.name}: ${l.lawyerCases.length} casos activos`).join('\n')}
 
-CASOS POR ABOGADO:
-${lawyerCases.map((l: any) => {
-    const active = l.lawyerCases.filter((c: any) => !['CERRADO','CANCELADO'].includes(c.status)).length
-    const total  = l.lawyerCases.length
-    const citas  = l.lawyerAppointments.length
-    return `- ${l.name}: ${total} casos total (${active} activos), ${citas} citas esta semana`
-}).join('\n')}
-
-DETALLE DE CASOS POR ABOGADO:
-${lawyerCases.map((l: any) =>
-    l.lawyerCases.length === 0 ? `- ${l.name}: sin casos` :
-    l.lawyerCases.map((c: any) => `- ${l.name} → "${c.title}" | ${c.legalArea} | ${c.status}`).join('\n')
-).join('\n')}`;
+TODOS LOS CASOS DEL SISTEMA:
+${allCases.map((c: any) => `- "${c.title}" | ${c.legalArea} | ${c.status} | Abogado: ${c.lawyer?.name || 'Sin asignar'} | Cliente: ${c.client.name}`).join('\n')}`;
 
     } else {
         // CLIENTE
@@ -279,15 +265,20 @@ ${myCitas.map(c =>
 ).join('\n') || 'Sin citas próximas.'}`;
     }
 
-    const prompt = `Eres el asistente de inteligencia artificial de BufeteLegal, un bufete de abogados venezolano.
-Tienes acceso a los datos reales del sistema. Responde de forma clara, directa y en español.
-No inventes información — usa SOLO los datos que se te dan. Si no hay datos, dilo claramente.
-Sé conciso pero completo. Usa un tono profesional y amigable.
+    const historyText = history.length > 0
+        ? '\n=== CONVERSACIÓN PREVIA ===\n' + history.slice(-6).map((h: any) =>
+            `${h.role === 'user' ? 'Usuario' : 'Asistente'}: ${h.text}`
+          ).join('\n')
+        : '';
 
-=== DATOS REALES DEL SISTEMA ===
+    const prompt = `Eres el asistente IA de BufeteLegal Venezuela. Tienes acceso a datos reales del sistema.
+Responde en español, directo y profesional. Usa SOLO los datos proporcionados. Si algo no está en los datos, dilo.
+${historyText}
+
+=== DATOS DEL SISTEMA ===
 ${context}
 
-=== PREGUNTA DEL USUARIO ===
+=== PREGUNTA ACTUAL ===
 ${message}`;
 
     const response = await generateWithRetry(prompt);
