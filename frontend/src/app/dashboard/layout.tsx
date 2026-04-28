@@ -6,6 +6,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useGlobalSocket } from '@/contexts/SocketContext';
+import AIAssistant from '@/components/AIAssistant';
 
 /* ── SVG Icon System ── */
 const Icon = ({ name, size = 18, stroke = 'currentColor' }: { name: string; size?: number; stroke?: string }) => {
@@ -469,6 +470,9 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                     children
                 )}
             </div>
+
+            {/* ── Asistente IA flotante ── */}
+            <AIAssistant role={user.role} />
 
             <style jsx>{`
                 .dashboard-layout { display: flex; min-height: 100vh; background: #0a1929; }

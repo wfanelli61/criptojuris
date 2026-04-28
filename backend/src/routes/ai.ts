@@ -1,8 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { z } from 'zod';
+
+const prisma = new PrismaClient();
 
 const router = Router();
 router.use(authenticate);
@@ -123,6 +126,165 @@ ${details || 'Ninguno'}`;
 
     const content = await generateWithRetry(prompt);
     res.json({ document: content, type, typeName: DOC_NAMES[type] });
+}));
+
+// ── POST /ai/assistant ───────────────────────────────────────────────────────
+// IA con acceso a la BD del usuario — responde preguntas con datos reales
+const assistantSchema = z.object({
+    message: z.string().min(1).max(1000),
+});
+
+router.post('/assistant', asyncHandler(async (req: Request, res: Response) => {
+    const { message } = assistantSchema.parse(req.body);
+    const { userId, role } = req.user!;
+
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const todayEnd   = new Date(todayStart.getTime() + 86400000);
+    const weekEnd    = new Date(todayStart.getTime() + 7 * 86400000);
+
+    let context = '';
+
+    if (role === 'ABOGADO') {
+        const [cases, todayCitas, weekCitas, pendingBudgets] = await Promise.all([
+            prisma.legalCase.findMany({
+                where: { lawyerId: userId },
+                include: { client: { select: { name: true } } },
+                orderBy: { updatedAt: 'desc' },
+                take: 20,
+            }),
+            prisma.appointmentRequest.findMany({
+                where: { lawyerId: userId, preferredDate: { gte: todayStart, lt: todayEnd } },
+                include: { client: { select: { name: true } }, service: { select: { name: true } } },
+                orderBy: { preferredDate: 'asc' },
+            }),
+            prisma.appointmentRequest.findMany({
+                where: { lawyerId: userId, preferredDate: { gte: todayStart, lt: weekEnd }, status: { not: 'CANCELADA' } },
+                include: { client: { select: { name: true } }, service: { select: { name: true } } },
+                orderBy: { preferredDate: 'asc' },
+            }),
+            prisma.legalCase.findMany({
+                where: { lawyerId: userId, status: 'PRESUPUESTO_APROBADO' },
+                include: { client: { select: { name: true } } },
+            }),
+        ]);
+
+        const casesByStatus = cases.reduce((acc: Record<string, number>, c) => {
+            acc[c.status] = (acc[c.status] || 0) + 1;
+            return acc;
+        }, {});
+
+        context = `ROL: Abogado
+FECHA HOY: ${today.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' })}
+
+CITAS DE HOY (${todayCitas.length}):
+${todayCitas.length === 0 ? 'Sin citas para hoy.' : todayCitas.map(c =>
+    `- ${c.preferredDate ? new Date(c.preferredDate).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'} | Cliente: ${c.client.name} | Servicio: ${c.service.name} | Estado: ${c.status}`
+).join('\n')}
+
+CITAS ESTA SEMANA (${weekCitas.length}):
+${weekCitas.length === 0 ? 'Sin citas esta semana.' : weekCitas.map(c =>
+    `- ${c.preferredDate ? new Date(c.preferredDate).toLocaleDateString('es-VE', { weekday: 'short', day: 'numeric' }) : 'Sin fecha'} | ${c.client.name} | ${c.service.name}`
+).join('\n')}
+
+MIS CASOS (${cases.length} total):
+${Object.entries(casesByStatus).map(([s, n]) => `- ${s}: ${n}`).join('\n')}
+
+CASOS ACTIVOS RECIENTES:
+${cases.filter(c => !['CERRADO','CANCELADO'].includes(c.status)).slice(0, 8).map(c =>
+    `- "${c.title}" | Cliente: ${c.client.name} | Área: ${c.legalArea} | Estado: ${c.status}`
+).join('\n')}
+
+PRESUPUESTOS APROBADOS PENDIENTES DE CONTRATO (${pendingBudgets.length}):
+${pendingBudgets.map(c => `- "${c.title}" | ${c.client.name}`).join('\n') || 'Ninguno'}`;
+
+    } else if (role === 'ADMIN') {
+        const [totalUsers, totalCases, todayCitas, weekCitas, recentCases, casesByArea] = await Promise.all([
+            prisma.user.groupBy({ by: ['role'], _count: true }),
+            prisma.legalCase.groupBy({ by: ['status'], _count: true }),
+            prisma.appointmentRequest.findMany({
+                where: { preferredDate: { gte: todayStart, lt: todayEnd } },
+                include: { client: { select: { name: true } }, lawyer: { select: { name: true } }, service: { select: { name: true } } },
+                orderBy: { preferredDate: 'asc' },
+            }),
+            prisma.appointmentRequest.findMany({
+                where: { preferredDate: { gte: todayStart, lt: weekEnd }, status: { not: 'CANCELADA' } },
+                include: { client: { select: { name: true } }, lawyer: { select: { name: true } } },
+            }),
+            prisma.legalCase.findMany({
+                where: { createdAt: { gte: new Date(Date.now() - 7 * 86400000) } },
+                include: { client: { select: { name: true } }, lawyer: { select: { name: true } } },
+                orderBy: { createdAt: 'desc' }, take: 10,
+            }),
+            prisma.legalCase.groupBy({ by: ['legalArea'], _count: true, orderBy: { _count: { legalArea: 'desc' } } }),
+        ]);
+
+        context = `ROL: Administrador del Bufete
+FECHA HOY: ${today.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' })}
+
+USUARIOS DEL SISTEMA:
+${totalUsers.map((u: any) => `- ${u.role}: ${u._count}`).join('\n')}
+
+CASOS POR ESTADO:
+${totalCases.map((c: any) => `- ${c.status}: ${c._count}`).join('\n')}
+
+ÁREAS MÁS ACTIVAS:
+${casesByArea.map((a: any) => `- ${a.legalArea}: ${a._count} casos`).join('\n')}
+
+CITAS DE HOY (${todayCitas.length}):
+${todayCitas.length === 0 ? 'Sin citas para hoy.' : todayCitas.map(c =>
+    `- ${c.preferredDate ? new Date(c.preferredDate).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'} | ${c.client.name} con ${c.lawyer?.name || 'Sin asignar'} | ${c.service.name}`
+).join('\n')}
+
+CITAS ESTA SEMANA: ${weekCitas.length}
+
+CASOS NUEVOS ESTA SEMANA (${recentCases.length}):
+${recentCases.map(c =>
+    `- "${c.title}" | Cliente: ${c.client.name} | Abogado: ${c.lawyer?.name || 'Sin asignar'} | Área: ${c.legalArea}`
+).join('\n') || 'Ninguno'}`;
+
+    } else {
+        // CLIENTE
+        const [myCases, myCitas] = await Promise.all([
+            prisma.legalCase.findMany({
+                where: { clientId: userId },
+                include: { lawyer: { select: { name: true } } },
+                orderBy: { updatedAt: 'desc' }, take: 10,
+            }),
+            prisma.appointmentRequest.findMany({
+                where: { clientId: userId, preferredDate: { gte: todayStart } },
+                include: { lawyer: { select: { name: true } }, service: { select: { name: true } } },
+                orderBy: { preferredDate: 'asc' }, take: 5,
+            }),
+        ]);
+
+        context = `ROL: Cliente
+FECHA HOY: ${today.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' })}
+
+MIS CASOS (${myCases.length}):
+${myCases.map(c =>
+    `- "${c.title}" | Área: ${c.legalArea} | Estado: ${c.status} | Abogado: ${c.lawyer?.name || 'Sin asignar'}`
+).join('\n') || 'Sin casos registrados.'}
+
+PRÓXIMAS CITAS:
+${myCitas.map(c =>
+    `- ${c.preferredDate ? new Date(c.preferredDate).toLocaleDateString('es-VE') : 'Sin fecha'} | ${c.service.name} | Abogado: ${c.lawyer?.name || 'Sin asignar'} | Estado: ${c.status}`
+).join('\n') || 'Sin citas próximas.'}`;
+    }
+
+    const prompt = `Eres el asistente de inteligencia artificial de BufeteLegal, un bufete de abogados venezolano.
+Tienes acceso a los datos reales del sistema. Responde de forma clara, directa y en español.
+No inventes información — usa SOLO los datos que se te dan. Si no hay datos, dilo claramente.
+Sé conciso pero completo. Usa un tono profesional y amigable.
+
+=== DATOS REALES DEL SISTEMA ===
+${context}
+
+=== PREGUNTA DEL USUARIO ===
+${message}`;
+
+    const response = await generateWithRetry(prompt);
+    res.json({ response });
 }));
 
 export default router;
