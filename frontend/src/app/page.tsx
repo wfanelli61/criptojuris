@@ -365,44 +365,34 @@ export default function LandingPage() {
 
                     <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
                         {[
-                            {
-                                step: '01', title: 'Cuéntenos su caso', desc: 'Llene el formulario o llámenos. Describa su situación y le asignamos el abogado más adecuado.',
-                                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6" /><path d="M16 13H8" /><path d="M16 17H8" /><path d="M10 9H8" /></svg>
-                            },
-                            {
-                                step: '02', title: 'Consulta personalizada', desc: 'Su abogado le contacta en menos de 24 horas. Analizamos y explicamos opciones en lenguaje sencillo.',
-                                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2" /><circle cx="12" cy="11" r="3" /><circle cx="12" cy="12" r="10" /></svg>
-                            },
-                            {
-                                step: '03', title: 'Plan de acción claro', desc: 'Estrategia legal detallada con plazos, costos transparentes y resultados posibles.',
-                                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V10" /><path d="M18 20V4" /><path d="M6 20v-4" /></svg>
-                            },
-                            {
-                                step: '04', title: 'Resolución exitosa', desc: 'Ejecutamos la estrategia, le informamos y trabajamos hasta obtener el mejor resultado.',
-                                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="m9 12 2 2 4-4" /></svg>
-                            },
+                            { step: '01', title: 'Cuéntenos su caso', desc: 'Describa su situación y le asignamos el abogado más adecuado para su caso en menos de 24 horas.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6" /><path d="M16 13H8" /><path d="M16 17H8" /></svg> },
+                            { step: '02', title: 'Consulta personalizada', desc: 'Su abogado le contacta y analiza su caso. Le explica sus opciones en lenguaje claro, sin tecnicismos.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2" /><circle cx="12" cy="11" r="3" /><circle cx="12" cy="12" r="10" /></svg> },
+                            { step: '03', title: 'Plan de acción claro', desc: 'Recibe una estrategia legal detallada con plazos, honorarios transparentes y los posibles resultados.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V10" /><path d="M18 20V4" /><path d="M6 20v-4" /></svg> },
+                            { step: '04', title: 'Resolución exitosa', desc: 'Ejecutamos la estrategia, le mantenemos informado en cada paso y trabajamos para el mejor resultado.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="m9 12 2 2 4-4" /></svg> },
                         ].map((item, i) => (
                             <TiltCard key={item.step} style={{
                                 textAlign: 'center', padding: '2rem 1.5rem', borderRadius: 'var(--radius-xl)',
-                                background: C.offWhite,
-                                border: `1px solid rgba(0,0,0,0.05)`, position: 'relative',
-                                boxShadow: `0 10px 30px rgba(0,0,0,0.05)`
+                                background: 'rgba(255,255,255,0.04)',
+                                backdropFilter: 'blur(12px)',
+                                border: `1px solid rgba(255,255,255,0.08)`,
+                                boxShadow: `0 10px 30px rgba(0,0,0,0.2)`,
+                                position: 'relative',
                             }}>
                                 <div style={{
                                     position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)',
                                     background: `linear-gradient(135deg, ${C.yellow}, ${C.orange})`, color: C.navyDeep,
                                     width: '32px', height: '32px', borderRadius: '50%',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: '0.7rem', fontWeight: 900, boxShadow: `0 4px 12px ${C.yellow}40`,
+                                    fontSize: '0.7rem', fontWeight: 900, boxShadow: `0 4px 12px ${C.yellow}50`,
                                 }}>{item.step}</div>
                                 <div style={{
                                     width: '60px', height: '60px', borderRadius: '50%',
-                                    background: `${C.yellow}10`, border: `1px solid ${C.yellow}20`,
+                                    background: `rgba(240,180,41,0.12)`, border: `1px solid rgba(240,180,41,0.25)`,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    margin: '0rem auto 1rem',
+                                    margin: '0.5rem auto 1.25rem',
                                 }}>{item.icon}</div>
-                                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: C.navyDeep, fontWeight: 700 }}>{item.title}</h3>
-                                <p style={{ color: C.navyDark, lineHeight: 1.7, fontSize: '0.88rem', opacity: 0.8 }}>{item.desc}</p>
+                                <h3 style={{ fontSize: '1.05rem', marginBottom: '0.6rem', color: C.white, fontWeight: 700 }}>{item.title}</h3>
+                                <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, fontSize: '0.87rem' }}>{item.desc}</p>
                             </TiltCard>
                         ))}
                     </div>
@@ -417,21 +407,31 @@ export default function LandingPage() {
 
                     <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
                         {[
-                            { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4" /><path d="m3.34 19 1.4-1.4" /><path d="m4.34 14.34 1.4-1.4" /><path d="M5.31 9.3c.2-1 .6-1.9 1.2-2.7L12.5 12.5" /><path d="m6.66 5.34 1.4-1.4" /><path d="m7.34 4.34 1.4-1.4" /><path d="M9.3 5.31c1-.2 1.9-.6 2.7-1.2L16.5 6.5" /><path d="m14.34 4.34 1.4-1.4" /><path d="m15.34 3.34 1.4-1.4" /><path d="m17.5 12.5 4.5 4.5" /><path d="m17.5 7.5 4.5-4.5" /><path d="m18.5 13.5 1.4 1.4" /><path d="m19 14.3 1.4 1.4" /><path d="m19 8.3 1.4-1.4" /><path d="m20.34 7.34 1.4-1.4" /><path d="m3.34 17.5 4.5-4.5" /><path d="m3.34 7.5 4.5 4.5" /><path d="m4.34 18.5 1.4-1.4" /><path d="m8.3 19c-1-.2-1.9-.6-2.7-1.2L11.5 12.5" /><path d="M9.3 18.69c1 .2 1.9.6 2.7 1.2l4.5-4.5" /></svg>, title: 'Especialización Real', text: 'Cada caso es atendido por un especialista en esa área del derecho con años de experiencia.', highlight: 'Cada abogado domina su especialidad' },
-                            { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M8 9h8" /><path d="M8 13h6" /></svg>, title: 'Comunicación Clara', text: 'Le explicamos todo en palabras simples. Sin sorpresas ni jerga legal confusa.', highlight: 'Sin jerga legal confusa' },
-                            { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></svg>, title: 'Transparencia Total', text: 'Antes de iniciar, conoce exactamente los costos, plazos y probabilidades de éxito.', highlight: 'Sin costos ocultos' },
+                            { emoji: '⚖️', title: 'Especialización Real', text: 'Cada caso es atendido por un especialista en esa área del derecho con años de experiencia comprobada.', highlight: 'Cada abogado domina su especialidad' },
+                            { emoji: '💬', title: 'Comunicación Clara', text: 'Le explicamos todo en palabras simples, sin sorpresas ni jerga legal confusa. Siempre disponibles.', highlight: 'Sin jerga legal confusa' },
+                            { emoji: '🔒', title: 'Transparencia Total', text: 'Antes de iniciar, conoce exactamente los costos, plazos y probabilidades de éxito de su caso.', highlight: 'Sin costos ocultos' },
                         ].map((item, i) => (
                             <TiltCard key={item.title} style={{
-                                background: C.offWhite, border: `1px solid rgba(0,0,0,0.05)`, borderRadius: 'var(--radius-xl)', padding: '2.5rem 2rem', textAlign: 'center', boxShadow: `0 15px 45px rgba(0,0,0,0.08)`, display: 'flex', flexDirection: 'column', alignItems: 'center'
+                                background: 'rgba(255,255,255,0.04)',
+                                backdropFilter: 'blur(12px)',
+                                border: `1px solid rgba(255,255,255,0.08)`,
+                                borderTop: `2px solid ${C.yellow}`,
+                                borderRadius: 'var(--radius-xl)', padding: '2.5rem 2rem',
+                                textAlign: 'center', boxShadow: `0 15px 45px rgba(0,0,0,0.25)`,
+                                display: 'flex', flexDirection: 'column', alignItems: 'center'
                             }}>
                                 <div style={{
-                                    width: '72px', height: '72px', borderRadius: '22px', background: `linear-gradient(135deg, ${C.yellow}, ${C.orange})`, boxShadow: `0 10px 30px ${C.yellow}50`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', flexShrink: 0
-                                }}>
-                                    {React.cloneElement(item.icon as React.ReactElement<any>, { stroke: C.white, width: 34, height: 34, strokeWidth: 2.5 })}
+                                    width: '72px', height: '72px', borderRadius: '22px',
+                                    background: `rgba(240,180,41,0.12)`,
+                                    border: `1px solid rgba(240,180,41,0.25)`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    marginBottom: '1.5rem', fontSize: '2rem', flexShrink: 0,
+                                }}>{item.emoji}</div>
+                                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.6rem', color: C.white, fontWeight: 800 }}>{item.title}</h3>
+                                <div style={{ marginBottom: '1.2rem' }}>
+                                    <span style={{ display: 'inline-block', background: `rgba(240,180,41,0.12)`, color: C.yellow, padding: '0.3rem 0.9rem', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 700, border: `1px solid rgba(240,180,41,0.25)` }}>{item.highlight}</span>
                                 </div>
-                                <h3 style={{ fontSize: '1.3rem', marginBottom: '0.6rem', color: C.navyDeep, fontWeight: 800 }}>{item.title}</h3>
-                                <div style={{ marginBottom: '1.2rem' }}><span style={{ display: 'inline-block', background: `${C.orange}15`, color: C.orangeDeep, padding: '0.3rem 0.9rem', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 800, border: `1px solid ${C.orange}30`, }}>{item.highlight}</span></div>
-                                <p style={{ color: C.navyDark, lineHeight: 1.8, fontSize: '0.92rem', opacity: 0.85, margin: 0 }}>{item.text}</p>
+                                <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, fontSize: '0.92rem', margin: 0 }}>{item.text}</p>
                             </TiltCard>
                         ))}
                     </div>
@@ -445,26 +445,38 @@ export default function LandingPage() {
                     <p className="section-subtitle reveal" style={{ color: C.textMuted }}>Conozca cada uno de nuestros servicios</p>
 
                     <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
-                        {services.map((service, i) => (
+                        {services.map((service, i) => {
+                            const AREA_EMOJI: Record<string, string> = { PENAL: '🔨', CIVIL: '📋', LOPNA: '👨‍👩‍👧', CORPORATIVO: '🏢', GENERAL: '⚖️' }
+                            const AREA_COLOR: Record<string, string> = { PENAL: '#F87171', CIVIL: '#60A5FA', LOPNA: '#C084FC', CORPORATIVO: '#F0B429', GENERAL: '#34D399' }
+                            const areaColor = AREA_COLOR[service.legalArea] || C.yellow
+                            const areaEmoji = AREA_EMOJI[service.legalArea] || '⚖️'
+                            return (
                             <TiltCard key={service.id} style={{
-                                padding: '1.75rem', cursor: 'default', borderRadius: 'var(--radius-xl)', background: C.offWhite, border: `1px solid rgba(0,0,0,0.05)`, borderLeft: `5px solid ${C.yellow}`, boxShadow: `0 10px 25px rgba(0,0,0,0.05)`
+                                padding: '1.75rem', cursor: 'default', borderRadius: 'var(--radius-xl)',
+                                background: 'rgba(255,255,255,0.04)',
+                                backdropFilter: 'blur(12px)',
+                                border: `1px solid rgba(255,255,255,0.07)`,
+                                borderLeft: `4px solid ${areaColor}`,
+                                boxShadow: `0 10px 25px rgba(0,0,0,0.2)`,
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                                    <div style={{ width: '48px', height: '48px', borderRadius: '14px', flexShrink: 0, background: `${C.yellow}12`, border: `1px solid ${C.yellow}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
-                                        {service.icon === 'scale' && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h18" /></svg>}
-                                        {service.icon === 'court' && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18" /><path d="M3 7h18" /><path d="m12 2-9 5 9 5 9-5-9-5Z" /><path d="M6 7v14" /><path d="M10 7v14" /><path d="M14 7v14" /><path d="M18 7v14" /></svg>}
-                                        {service.icon === 'file-text' && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>}
-                                        {service.icon === 'briefcase' && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>}
-                                        {service.name.includes('Familia') && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>}
-                                        {service.icon === 'home' && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>}
+                                    <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: `rgba(${areaColor === '#F87171' ? '248,113,113' : areaColor === '#60A5FA' ? '96,165,250' : areaColor === '#C084FC' ? '192,132,252' : '240,180,41'},0.12)`, border: `1px solid ${areaColor}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem' }}>
+                                        {areaEmoji}
                                     </div>
-                                    <div>
-                                        <h3 style={{ fontSize: '1.05rem', marginBottom: '0.5rem', color: C.navyDeep, fontWeight: 700 }}>{service.name}</h3>
-                                        <p style={{ color: C.navyDark, lineHeight: 1.7, fontSize: '0.85rem', opacity: 0.85 }}>{service.description}</p>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                                            <h3 style={{ fontSize: '1rem', color: C.white, fontWeight: 700, margin: 0 }}>{service.name}</h3>
+                                        </div>
+                                        <p style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, fontSize: '0.84rem', margin: '0 0 0.75rem' }}>{service.description}</p>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.72rem', color: areaColor, background: `${areaColor}18`, padding: '0.2rem 0.6rem', borderRadius: '999px', border: `1px solid ${areaColor}30`, fontWeight: 600 }}>{service.legalArea}</span>
+                                            <span style={{ fontSize: '0.85rem', color: C.yellow, fontWeight: 800 }}>Desde ${service.price} USD</span>
+                                        </div>
                                     </div>
                                 </div>
                             </TiltCard>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
             </section>
@@ -477,18 +489,18 @@ export default function LandingPage() {
 
                     <div className="stagger-children" style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center' }}>
                         {testimonials.map((t, i) => (
-                            <div key={t.id} style={{ padding: '1.75rem', background: C.offWhite, border: `1px solid rgba(0,0,0,0.05)`, borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', boxShadow: `0 10px 25px rgba(0,0,0,0.05)`, width: '100%', maxWidth: '360px', flex: '0 1 360px' }}>
-                                <div style={{ marginBottom: '0.75rem', fontSize: '1rem', color: C.yellow }}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</div>
-                                <p style={{ color: C.navyDeep, lineHeight: 1.75, fontSize: '0.88rem', marginBottom: '1.25rem', flex: 1, fontStyle: 'italic', opacity: 0.9 }}>&ldquo;{t.content}&rdquo;</p>
-                                <div style={{ borderTop: `1px solid rgba(0,0,0,0.05)`, paddingTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                    <div style={{
-                                        width: '40px', height: '40px', borderRadius: '50%', background: `linear-gradient(135deg, ${C.yellow}, ${C.orange})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.navyDeep, fontWeight: 800, fontSize: '0.8rem', flexShrink: 0, boxShadow: `0 4px 12px ${C.yellow}30`,
-                                    }}>{(t.name || 'C L').split(' ').map(n => n[0]).slice(0, 2).join('')}</div>
-                                    <div>
-                                        <strong style={{ color: C.navyDeep, fontSize: '0.85rem', display: 'block' }}>{t.name || 'Cliente'}</strong>
-                                        {t.role && <span style={{ fontSize: '0.75rem', color: C.navyDark, opacity: 0.6 }}>{t.role}</span>}
+                            <div key={t.id} style={{ padding: '1.75rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: `1px solid rgba(255,255,255,0.08)`, borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', boxShadow: `0 10px 30px rgba(0,0,0,0.25)`, width: '100%', maxWidth: '360px', flex: '0 1 360px' }}>
+                                <div style={{ marginBottom: '0.75rem', fontSize: '1.1rem', color: C.yellow, letterSpacing: '2px' }}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</div>
+                                <p style={{ color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, fontSize: '0.9rem', marginBottom: '1.25rem', flex: 1, fontStyle: 'italic' }}>&ldquo;{t.content}&rdquo;</p>
+                                <div style={{ borderTop: `1px solid rgba(255,255,255,0.08)`, paddingTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: `linear-gradient(135deg, ${C.yellow}, ${C.orange})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.navyDeep, fontWeight: 800, fontSize: '0.8rem', flexShrink: 0, boxShadow: `0 4px 12px ${C.yellow}40` }}>
+                                        {(t.name || 'C L').split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
                                     </div>
-                                    <span style={{ marginLeft: 'auto', fontSize: '0.7rem', fontWeight: 700, color: '#059669', background: 'rgba(5,150,105,0.08)', padding: '0.25rem 0.6rem', borderRadius: 'var(--radius-full)', border: '1px solid rgba(5,150,105,0.2)', }}>✓ Verificado</span>
+                                    <div>
+                                        <strong style={{ color: C.white, fontSize: '0.85rem', display: 'block' }}>{t.name || 'Cliente'}</strong>
+                                        {t.role && <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)' }}>{t.role}</span>}
+                                    </div>
+                                    <span style={{ marginLeft: 'auto', fontSize: '0.7rem', fontWeight: 700, color: '#34D399', background: 'rgba(52,211,153,0.12)', padding: '0.25rem 0.6rem', borderRadius: 'var(--radius-full)', border: '1px solid rgba(52,211,153,0.25)' }}>✓ Verificado</span>
                                 </div>
                             </div>
                         ))}
@@ -543,9 +555,9 @@ export default function LandingPage() {
                             { q: '¿Cuánto tiempo tarda un caso?', a: 'Depende del tipo. En la primera consulta le damos un estimado.' },
                             { q: '¿Cómo manejan los honorarios?', a: 'Transparencia total. Presupuesto detallado por escrito.' },
                         ].map((faq, i) => (
-                            <TiltCard key={i} style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)', background: C.offWhite, border: `1px solid rgba(0,0,0,0.05)`, boxShadow: `0 8px 20px rgba(0,0,0,0.05)` }}>
-                                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: C.navyDeep, marginBottom: '0.6rem', display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}><span style={{ color: C.orangeDeep, fontSize: '1rem', flexShrink: 0 }}>●</span>{faq.q}</h3>
-                                <p style={{ color: C.navyDark, lineHeight: 1.7, fontSize: '0.88rem', paddingLeft: '1.6rem', opacity: 0.85 }}>{faq.a}</p>
+                            <TiltCard key={i} style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: `1px solid rgba(255,255,255,0.08)`, boxShadow: `0 8px 20px rgba(0,0,0,0.2)` }}>
+                                <h3 style={{ fontSize: '0.97rem', fontWeight: 700, color: C.white, marginBottom: '0.6rem', display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}><span style={{ color: C.yellow, fontSize: '1.1rem', flexShrink: 0 }}>?</span>{faq.q}</h3>
+                                <p style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, fontSize: '0.88rem', paddingLeft: '1.6rem' }}>{faq.a}</p>
                             </TiltCard>
                         ))}
                     </div>
