@@ -4,21 +4,22 @@ import * as bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-    const hash = await bcrypt.hash('admin2024', 10)
+    const hash = await bcrypt.hash('123456', 10)
 
-    await prisma.user.upsert({
-        where: { email: 'admin@bufetelegal.com' },
-        create: {
-            email: 'admin@bufetelegal.com',
+    // Borrar cualquier admin previo con emails distintos
+    await prisma.user.deleteMany({ where: { role: 'ADMIN' } })
+
+    await prisma.user.create({
+        data: {
+            email: 'admin@bufete.com',
             passwordHash: hash,
             name: 'Administrador',
             role: 'ADMIN',
             emailVerified: true,
         },
-        update: {},
     })
 
-    console.log('Admin listo: admin@bufetelegal.com / admin2024')
+    console.log('Admin listo: admin@bufete.com / 123456')
     await prisma.$disconnect()
 }
 
