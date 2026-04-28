@@ -448,8 +448,8 @@ export default function LandingPage() {
                         {services.map((service, i) => {
                             const AREA_EMOJI: Record<string, string> = { PENAL: '🔨', CIVIL: '📋', LOPNA: '👨‍👩‍👧', CORPORATIVO: '🏢', GENERAL: '⚖️' }
                             const AREA_COLOR: Record<string, string> = { PENAL: '#F87171', CIVIL: '#60A5FA', LOPNA: '#C084FC', CORPORATIVO: '#F0B429', GENERAL: '#34D399' }
-                            const areaColor = AREA_COLOR[service.legalArea] || C.yellow
-                            const areaEmoji = AREA_EMOJI[service.legalArea] || '⚖️'
+                            const areaColor = AREA_COLOR[service.legalArea ?? 'GENERAL'] || C.yellow
+                            const areaEmoji = AREA_EMOJI[service.legalArea ?? 'GENERAL'] || '⚖️'
                             return (
                             <TiltCard key={service.id} style={{
                                 padding: '1.75rem', cursor: 'default', borderRadius: 'var(--radius-xl)',
