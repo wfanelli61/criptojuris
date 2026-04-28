@@ -33,13 +33,20 @@ export default function AIAssistant({ role }: { role: string }) {
         setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
         setLoading(true);
         try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 55000);
             const data = await apiFetch('/ai/assistant', {
                 method: 'POST',
                 body: JSON.stringify({ message: userMsg }),
+                signal: controller.signal,
             });
+            clearTimeout(timeout);
             setMessages(prev => [...prev, { role: 'assistant', text: data.response || data.error || 'Sin respuesta.' }]);
         } catch (err: any) {
-            const msg = err?.message || err?.error || 'Error al conectar con la IA.';
+            const isTimeout = err?.name === 'AbortError' || err?.message?.includes('abort');
+            const msg = isTimeout
+                ? 'El servidor tardó demasiado en responder. El sistema se estaba iniciando — intenta de nuevo en unos segundos.'
+                : (err?.message || err?.error || 'Error al conectar. Intenta de nuevo.');
             setMessages(prev => [...prev, { role: 'assistant', text: msg }]);
         } finally {
             setLoading(false);

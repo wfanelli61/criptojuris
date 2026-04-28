@@ -199,24 +199,24 @@ PRESUPUESTOS APROBADOS PENDIENTES DE CONTRATO (${pendingBudgets.length}):
 ${pendingBudgets.map(c => `- "${c.title}" | ${c.client.name}`).join('\n') || 'Ninguno'}`;
 
     } else if (role === 'ADMIN') {
-        const [totalUsers, totalCases, todayCitas, weekCitas, recentCases, casesByArea] = await Promise.all([
-            prisma.user.groupBy({ by: ['role'], _count: true }),
-            prisma.legalCase.groupBy({ by: ['status'], _count: true }),
+        const [totalUsers, totalCases, todayCitas, casesByArea, lawyerCases] = await Promise.all([
+            prisma.user.groupBy({ by: ['role' as any], _count: true }),
+            prisma.legalCase.groupBy({ by: ['status' as any], _count: true }),
             prisma.appointmentRequest.findMany({
                 where: { preferredDate: { gte: todayStart, lt: todayEnd } },
                 include: { client: { select: { name: true } }, lawyer: { select: { name: true } }, service: { select: { name: true } } },
-                orderBy: { preferredDate: 'asc' },
+                orderBy: { preferredDate: 'asc' }, take: 10,
             }),
-            prisma.appointmentRequest.findMany({
-                where: { preferredDate: { gte: todayStart, lt: weekEnd }, status: { not: 'CANCELADA' } },
-                include: { client: { select: { name: true } }, lawyer: { select: { name: true } } },
+            prisma.legalCase.groupBy({ by: ['legalArea' as any], _count: true }),
+            prisma.user.findMany({
+                where: { role: 'ABOGADO' },
+                select: {
+                    name: true,
+                    lawyerCases: { select: { id: true, status: true, title: true, legalArea: true } },
+                    lawyerAppointments: { where: { preferredDate: { gte: todayStart, lt: weekEnd } }, select: { id: true } },
+                },
+                take: 20,
             }),
-            prisma.legalCase.findMany({
-                where: { createdAt: { gte: new Date(Date.now() - 7 * 86400000) } },
-                include: { client: { select: { name: true } }, lawyer: { select: { name: true } } },
-                orderBy: { createdAt: 'desc' }, take: 10,
-            }),
-            prisma.legalCase.groupBy({ by: ['legalArea'], _count: true, orderBy: { _count: { legalArea: 'desc' } } }),
         ]);
 
         context = `ROL: Administrador del Bufete
@@ -232,16 +232,23 @@ ${totalCases.map((c: any) => `- ${c.status}: ${c._count}`).join('\n')}
 ${casesByArea.map((a: any) => `- ${a.legalArea}: ${a._count} casos`).join('\n')}
 
 CITAS DE HOY (${todayCitas.length}):
-${todayCitas.length === 0 ? 'Sin citas para hoy.' : todayCitas.map(c =>
+${todayCitas.length === 0 ? 'Sin citas hoy.' : todayCitas.map(c =>
     `- ${c.preferredDate ? new Date(c.preferredDate).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'} | ${c.client.name} con ${c.lawyer?.name || 'Sin asignar'} | ${c.service.name}`
 ).join('\n')}
 
-CITAS ESTA SEMANA: ${weekCitas.length}
+CASOS POR ABOGADO:
+${lawyerCases.map((l: any) => {
+    const active = l.lawyerCases.filter((c: any) => !['CERRADO','CANCELADO'].includes(c.status)).length
+    const total  = l.lawyerCases.length
+    const citas  = l.lawyerAppointments.length
+    return `- ${l.name}: ${total} casos total (${active} activos), ${citas} citas esta semana`
+}).join('\n')}
 
-CASOS NUEVOS ESTA SEMANA (${recentCases.length}):
-${recentCases.map(c =>
-    `- "${c.title}" | Cliente: ${c.client.name} | Abogado: ${c.lawyer?.name || 'Sin asignar'} | Área: ${c.legalArea}`
-).join('\n') || 'Ninguno'}`;
+DETALLE DE CASOS POR ABOGADO:
+${lawyerCases.map((l: any) =>
+    l.lawyerCases.length === 0 ? `- ${l.name}: sin casos` :
+    l.lawyerCases.map((c: any) => `- ${l.name} → "${c.title}" | ${c.legalArea} | ${c.status}`).join('\n')
+).join('\n')}`;
 
     } else {
         // CLIENTE
