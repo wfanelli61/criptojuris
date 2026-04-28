@@ -38,8 +38,9 @@ export default function AIAssistant({ role }: { role: string }) {
                 body: JSON.stringify({ message: userMsg }),
             });
             setMessages(prev => [...prev, { role: 'assistant', text: data.response || data.error || 'Sin respuesta.' }]);
-        } catch {
-            setMessages(prev => [...prev, { role: 'assistant', text: 'Error al conectar con la IA. Intenta de nuevo.' }]);
+        } catch (err: any) {
+            const msg = err?.message || err?.error || 'Error al conectar con la IA.';
+            setMessages(prev => [...prev, { role: 'assistant', text: msg }]);
         } finally {
             setLoading(false);
         }
