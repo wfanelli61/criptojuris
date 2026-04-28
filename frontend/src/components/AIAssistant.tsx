@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -32,13 +33,10 @@ export default function AIAssistant({ role }: { role: string }) {
         setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
         setLoading(true);
         try {
-            const res = await fetch('/api/ai/assistant', {
+            const data = await apiFetch('/ai/assistant', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({ message: userMsg }),
             });
-            const data = await res.json();
             setMessages(prev => [...prev, { role: 'assistant', text: data.response || data.error || 'Sin respuesta.' }]);
         } catch {
             setMessages(prev => [...prev, { role: 'assistant', text: 'Error al conectar con la IA. Intenta de nuevo.' }]);
