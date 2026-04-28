@@ -185,8 +185,8 @@ export default function LandingPage() {
 
     // Si ya hay sesión iniciada, redirigir al dashboard
     useEffect(() => {
-        if (!loading && user) router.replace('/dashboard');
-    }, [user, loading, router]);
+        if (user) router.replace('/dashboard');
+    }, [user, router]);
 
     useEffect(() => {
         apiFetch('/public/services').then(d => d.services && setServices(d.services)).catch(() => { });
@@ -194,8 +194,8 @@ export default function LandingPage() {
         apiFetch('/public/lawyers?limit=10').then(d => d.lawyers && setLawyers(d.lawyers)).catch(() => { });
     }, []);
 
-    // Mientras verifica la sesión no renderiza nada para evitar flash
-    if (loading || user) return null;
+    // Solo ocultar si hay usuario confirmado (evita flash del dashboard)
+    if (user) return null;
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const jsonLd = {
