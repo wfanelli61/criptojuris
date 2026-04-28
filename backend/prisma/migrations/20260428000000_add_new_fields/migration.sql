@@ -25,11 +25,17 @@ CREATE INDEX IF NOT EXISTS "CaseEvent_caseId_idx"   ON "CaseEvent"("caseId");
 CREATE INDEX IF NOT EXISTS "CaseEvent_userId_idx"   ON "CaseEvent"("userId");
 CREATE INDEX IF NOT EXISTS "CaseEvent_createdAt_idx" ON "CaseEvent"("createdAt");
 
-ALTER TABLE "CaseEvent"
-    ADD CONSTRAINT "CaseEvent_caseId_fkey"
-        FOREIGN KEY ("caseId") REFERENCES "LegalCase"("id") ON DELETE CASCADE,
-    ADD CONSTRAINT "CaseEvent_userId_fkey"
-        FOREIGN KEY ("userId") REFERENCES "User"("id");
+DO $$ BEGIN
+  ALTER TABLE "CaseEvent"
+      ADD CONSTRAINT "CaseEvent_caseId_fkey"
+          FOREIGN KEY ("caseId") REFERENCES "LegalCase"("id") ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  ALTER TABLE "CaseEvent"
+      ADD CONSTRAINT "CaseEvent_userId_fkey"
+          FOREIGN KEY ("userId") REFERENCES "User"("id");
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Tabla CasePayment (pagos del caso)
 CREATE TABLE IF NOT EXISTS "CasePayment" (
@@ -57,10 +63,17 @@ CREATE INDEX IF NOT EXISTS "CasePayment_caseId_idx"   ON "CasePayment"("caseId")
 CREATE INDEX IF NOT EXISTS "CasePayment_clientId_idx" ON "CasePayment"("clientId");
 CREATE INDEX IF NOT EXISTS "CasePayment_status_idx"   ON "CasePayment"("status");
 
-ALTER TABLE "CasePayment"
-    ADD CONSTRAINT "CasePayment_caseId_fkey"
-        FOREIGN KEY ("caseId") REFERENCES "LegalCase"("id") ON DELETE CASCADE,
-    ADD CONSTRAINT "CasePayment_clientId_fkey"
-        FOREIGN KEY ("clientId") REFERENCES "User"("id"),
-    ADD CONSTRAINT "CasePayment_confirmedById_fkey"
-        FOREIGN KEY ("confirmedById") REFERENCES "User"("id");
+DO $$ BEGIN
+  ALTER TABLE "CasePayment" ADD CONSTRAINT "CasePayment_caseId_fkey"
+      FOREIGN KEY ("caseId") REFERENCES "LegalCase"("id") ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  ALTER TABLE "CasePayment" ADD CONSTRAINT "CasePayment_clientId_fkey"
+      FOREIGN KEY ("clientId") REFERENCES "User"("id");
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  ALTER TABLE "CasePayment" ADD CONSTRAINT "CasePayment_confirmedById_fkey"
+      FOREIGN KEY ("confirmedById") REFERENCES "User"("id");
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
