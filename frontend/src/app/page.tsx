@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { C } from '@/lib/theme';
 
 /* ==================== TYPES ==================== */
-interface Service { id: string; name: string; description: string; icon: string; }
+interface Service { id: string; name: string; description: string; icon: string; price?: number; legalArea?: string; }
 interface Testimonial { id: string; name: string; role?: string; rating: number; content: string; }
 interface Lawyer {
     id: string; name: string;
