@@ -16,6 +16,7 @@ import clientRoutes from './routes/client';
 import adminRoutes from './routes/admin';
 import verificationRoutes from './routes/verification';
 import chatRoutes from './routes/chat';
+import aiRoutes from './routes/ai';
 import { initSocket } from './socket';
 
 const app = express();
@@ -67,6 +68,7 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

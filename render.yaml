@@ -16,19 +16,19 @@ services:
       - key: JWT_REFRESH_EXPIRES_IN
         value: 7d
       - key: DATABASE_URL
-        sync: false
+        value: postgresql://neondb_owner:npg_vlMqIrmh9ES7@ep-wispy-pond-akxcwuny.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        sync: false
-      - key: GEMINI_API_KEY
-        sync: false
+        value: https://frontend-three-weld-s60767gkkr.vercel.app
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT
         value: 587
+      - key: GEMINI_API_KEY
+        sync: false
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASS

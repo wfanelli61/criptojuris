@@ -23,4 +23,5 @@ export const config = {
     database: {
         url: env('DATABASE_URL', 'postgresql://abogados_user:abogados_pass@localhost:5432/abogados_db'),
     },
+    geminiApiKey: env('GEMINI_API_KEY', ''),
 };

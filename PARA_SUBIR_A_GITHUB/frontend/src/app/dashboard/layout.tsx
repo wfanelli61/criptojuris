@@ -87,6 +87,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                     { href: '/dashboard/mi-perfil', label: '👤 Mi Perfil' },
                     { href: '/dashboard/chat', label: '✉️ Mensajes' },
                     { href: '/dashboard/mis-citas?view=calendar', label: '📆 Calendario' },
+                    { href: '/dashboard/generar-reporte', label: '📄 Generar Reporte' },
                 ];
             case 'CLIENTE':
             default:
@@ -97,6 +98,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                     { href: '/dashboard/chat', label: '✉️ Mensajes' },
                     { href: '/dashboard/citas?view=calendar', label: '📆 Calendario' },
                     { href: '/abogados', label: '🔍 Buscar Abogados' },
+                    { href: '/dashboard/analizar-caso', label: '🤖 Analizar Caso IA' },
+                    { href: '/dashboard/generar-reporte', label: '📄 Generar Reporte' },
                 ];
         }
     })();
