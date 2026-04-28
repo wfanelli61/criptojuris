@@ -11,13 +11,13 @@ const STATUS_LABEL: Record<string, string> = {
  EN_CURSO: 'En curso', CERRADO: 'Cerrado', CANCELADO: 'Cancelado',
 };
 const STATUS_COLOR: Record<string, { bg: string; color: string }> = {
- SOLICITUD: { bg: '#F0B429', color: '#854D0E' },
- PRESUPUESTO_ENVIADO: { bg: '#F0B429', color: '#F59E0B' },
- PRESUPUESTO_APROBADO: { bg: '#34D399', color: '#34D399' },
- CONTRATO_FIRMADO: { bg: '#C084FC', color: '#60A5FA' },
- EN_CURSO: { bg: 'rgba(255,255,255,0.06)', color: '#5B21B6' },
- CERRADO: { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.55)' },
- CANCELADO: { bg: '#F87171', color: '#F87171' },
+ SOLICITUD:            { bg: 'rgba(240,180,41,0.15)',  color: '#F0B429' },
+ PRESUPUESTO_ENVIADO:  { bg: 'rgba(240,180,41,0.15)',  color: '#F0B429' },
+ PRESUPUESTO_APROBADO: { bg: 'rgba(52,211,153,0.15)',  color: '#34D399' },
+ CONTRATO_FIRMADO:     { bg: 'rgba(96,165,250,0.15)',  color: '#60A5FA' },
+ EN_CURSO:             { bg: 'rgba(52,211,153,0.15)',  color: '#34D399' },
+ CERRADO:              { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.55)' },
+ CANCELADO:            { bg: 'rgba(248,113,113,0.15)', color: '#F87171' },
 };
 const DOC_TYPES = ['RECURSO', 'AMPARO', 'INCIDENTAL', 'OTRO'];
 

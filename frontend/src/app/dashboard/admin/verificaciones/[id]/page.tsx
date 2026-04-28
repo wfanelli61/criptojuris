@@ -38,9 +38,9 @@ export default function AdminVerificacionDetailPage() {
  const valueStyle: React.CSSProperties = { color: 'rgba(255,255,255,0.55)' };
 
  const statusColors: any = {
- PENDING: { bg: '#F0B429', color: '#F59E0B', label: ' Pendiente' },
- APPROVED: { bg: '#34D399', color: '#34D399', label: ' Aprobado' },
- REJECTED: { bg: '#F87171', color: '#F87171', label: ' Rechazado' },
+ PENDING:  { bg: 'rgba(240,180,41,0.15)',  color: '#F0B429', label: ' Pendiente' },
+ APPROVED: { bg: 'rgba(52,211,153,0.15)',  color: '#34D399', label: ' Aprobado'  },
+ REJECTED: { bg: 'rgba(248,113,113,0.15)', color: '#F87171', label: ' Rechazado' },
  };
  const sc = statusColors[profile.verificationStatus] || statusColors.PENDING;
 
