@@ -455,16 +455,12 @@ export default function LandingPage() {
 
                     <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
                         {services.map((service, i) => {
-                            const AREA_COLOR: Record<string, string> = { PENAL: '#F87171', CIVIL: '#60A5FA', LOPNA: '#C084FC', CORPORATIVO: '#F0B429', GENERAL: '#34D399' }
-                            const areaColor = AREA_COLOR[service.legalArea ?? 'GENERAL'] || C.yellow
-                            const areaRgb: Record<string, string> = { PENAL: '248,113,113', CIVIL: '96,165,250', LOPNA: '192,132,252', CORPORATIVO: '240,180,41', GENERAL: '52,211,153' }
-                            const rgb = areaRgb[service.legalArea ?? 'GENERAL'] || '240,180,41'
                             const AREA_ICON: Record<string, React.ReactNode> = {
-                                PENAL:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>,
-                                CIVIL:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2.5M18.5 7H21"/></svg>,
-                                LOPNA:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-                                CORPORATIVO: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
-                                GENERAL:     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={areaColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+                                PENAL:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>,
+                                CIVIL:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2.5M18.5 7H21"/></svg>,
+                                LOPNA:       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+                                CORPORATIVO: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+                                GENERAL:     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.yellow} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
                             }
                             return (
                             <TiltCard key={service.id} style={{
@@ -472,22 +468,16 @@ export default function LandingPage() {
                                 background: 'rgba(255,255,255,0.04)',
                                 backdropFilter: 'blur(12px)',
                                 border: `1px solid rgba(255,255,255,0.07)`,
-                                borderLeft: `4px solid ${areaColor}`,
+                                borderLeft: `4px solid ${C.yellow}`,
                                 boxShadow: `0 10px 25px rgba(0,0,0,0.2)`,
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                                    <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: `rgba(${rgb},0.12)`, border: `1px solid rgba(${rgb},0.25)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: 'rgba(240,180,41,0.1)', border: '1px solid rgba(240,180,41,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         {AREA_ICON[service.legalArea ?? 'GENERAL'] || AREA_ICON['GENERAL']}
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                                            <h3 style={{ fontSize: '1rem', color: C.white, fontWeight: 700, margin: 0 }}>{service.name}</h3>
-                                        </div>
-                                        <p style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, fontSize: '0.84rem', margin: '0 0 0.75rem' }}>{service.description}</p>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                            <span style={{ fontSize: '0.72rem', color: areaColor, background: `${areaColor}18`, padding: '0.2rem 0.6rem', borderRadius: '999px', border: `1px solid ${areaColor}30`, fontWeight: 600 }}>{service.legalArea}</span>
-                                            <span style={{ fontSize: '0.85rem', color: C.yellow, fontWeight: 800 }}>Desde ${service.price} USD</span>
-                                        </div>
+                                        <h3 style={{ fontSize: '1rem', color: C.white, fontWeight: 700, margin: '0 0 0.4rem' }}>{service.name}</h3>
+                                        <p style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, fontSize: '0.84rem', margin: 0 }}>{service.description}</p>
                                     </div>
                                 </div>
                             </TiltCard>
