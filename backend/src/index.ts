@@ -117,9 +117,25 @@ app.use(errorHandler);
 
 // Iniciar servidor
 const prismaSetup = new PrismaClient();
+
+// RUN_SEED: ejecutar seed masivo al arrancar (se revierte en el próximo deploy)
+async function runSeedIfNeeded() {
+    if (process.env.RUN_SEED !== 'true') return;
+    try {
+        console.log('🌱 RUN_SEED=true detectado — ejecutando seed masivo...');
+        const { execSync } = await import('child_process');
+        execSync('node dist/seed-prod.js', { stdio: 'inherit', timeout: 120000 });
+        console.log('✅ Seed completado.');
+    } catch (e) {
+        console.error('❌ Error en seed:', e);
+    }
+}
+
 httpServer.listen(config.port, '0.0.0.0', async () => {
     console.log(`Servidor corriendo en http://localhost:${config.port}`);
     console.log(`Entorno: ${config.nodeEnv}`);
+
+    await runSeedIfNeeded();
 
     // Crear admin por defecto si no existe
     try {
