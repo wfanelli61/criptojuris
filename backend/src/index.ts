@@ -42,13 +42,12 @@ app.use(compression());
 
 // Middlewares de Seguridad
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "same-site" },
-    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline necesario para Next.js inline styles
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "blob:", "https:"],
             connectSrc: [
                 "'self'",
@@ -62,32 +61,17 @@ app.use(helmet({
     },
 }));
 
-// Rate limiter general
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: config.nodeEnv === 'production' ? 100 : 500,
     standardHeaders: true,
     legacyHeaders: false,
-    handler: (_req, res, _next, options) => {
-        res.status(options.statusCode).json({ error: 'Demasiadas peticiones. Intenta más tarde.' });
+    handler: (req, res, next, options) => {
+        res.status(options.statusCode).json({ error: options.message });
     },
+    message: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo más tarde.',
 });
-
-// Rate limiter estricto para autenticación (5 intentos / 15 min)
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: config.nodeEnv === 'production' ? 5 : 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (_req, res, _next, _options) => {
-        res.status(429).json({ error: 'Demasiados intentos de acceso. Espera 15 minutos.' });
-    },
-    skipSuccessfulRequests: true, // No penaliza logins exitosos
-});
-
-app.use('/api/', limiter);
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter); // Aplicar limite solo a la API
+app.use('/api/', limiter); // Aplicar limite solo a la API
 
 app.use(cors({
     origin: config.corsOrigin,
@@ -137,14 +121,15 @@ httpServer.listen(config.port, '0.0.0.0', async () => {
     console.log(`Servidor corriendo en http://localhost:${config.port}`);
     console.log(`Entorno: ${config.nodeEnv}`);
 
-    // Crear admin si no existe
+    // Crear admin por defecto si no existe
     try {
         const exists = await prismaSetup.user.findUnique({ where: { email: 'admin@bufete.com' } });
         if (!exists) {
-            const hash = await bcrypt.hash('123456', 12);
+            const hash = await bcrypt.hash('123456', 10);
             await prismaSetup.user.create({
                 data: { email: 'admin@bufete.com', passwordHash: hash, name: 'Administrador', role: 'ADMIN', emailVerified: true },
             });
+            console.log('Admin creado: admin@bufete.com / 123456');
         }
     } catch (e) {
         console.error('Setup admin error:', e);
