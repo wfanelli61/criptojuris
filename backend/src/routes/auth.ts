@@ -10,14 +10,6 @@ import { AppError } from '../middleware/errorHandler';
 
 const router = Router();
 
-// Blacklist de tokens revocados (en memoria; suficiente para instancia única)
-const revokedTokens = new Set<string>();
-
-// Limpiar tokens expirados cada hora para no acumular memoria
-setInterval(() => {
-    revokedTokens.clear();
-}, 60 * 60 * 1000);
-
 // Wrapper to catch async errors in Express 4
 const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) =>
     (req: Request, res: Response, next: NextFunction) => fn(req, res, next).catch(next);
@@ -186,18 +178,11 @@ router.post('/refresh', asyncHandler(async (req: Request, res: Response) => {
     const token = req.cookies?.refreshToken;
     if (!token) throw new AppError('No se proporcionó refresh token', 401);
 
-    // Verificar que no esté revocado
-    if (revokedTokens.has(token)) throw new AppError('Token inválido o ya utilizado', 401);
-
     try {
         const decoded = jwt.verify(token, config.jwt.refreshSecret) as { userId: string; role: string };
         const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
         if (!user || user.deletedAt) throw new AppError('Usuario no encontrado', 401);
 
-        // Revocar el refresh token anterior (rotación)
-        revokedTokens.add(token);
-
-        // Emitir nuevos tokens
         const { accessToken, refreshToken } = generateTokens(user.id, user.role);
         setTokenCookies(res, accessToken, refreshToken);
 
@@ -209,11 +194,7 @@ router.post('/refresh', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // POST /auth/logout
-router.post('/logout', (req: Request, res: Response) => {
-    // Revocar el refresh token para invalidarlo aunque el cliente lo guarde
-    const refreshToken = req.cookies?.refreshToken;
-    if (refreshToken) revokedTokens.add(refreshToken);
-
+router.post('/logout', (_req: Request, res: Response) => {
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
     res.json({ message: 'Sesión cerrada exitosamente' });
