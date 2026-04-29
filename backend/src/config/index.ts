@@ -3,17 +3,22 @@ import path from 'path';
 
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
-// Helper to safely read env vars (trim whitespace/newlines)
-const env = (key: string, fallback: string): string => (process.env[key] || fallback).trim();
+const env = (key: string, fallback = ''): string => (process.env[key] || fallback).trim();
 
 const nodeEnv = env('NODE_ENV', 'development');
-const jwtSecret = env('JWT_SECRET', 'dev-secret-change-me');
-const jwtRefreshSecret = env('JWT_REFRESH_SECRET', 'dev-refresh-secret-change-me');
+const isProduction = nodeEnv === 'production';
 
-// En producción, fallar si se usan los secrets por defecto
-if (nodeEnv === 'production') {
-    if (jwtSecret === 'dev-secret-change-me') throw new Error('JWT_SECRET no puede ser el valor por defecto en producción');
-    if (jwtRefreshSecret === 'dev-refresh-secret-change-me') throw new Error('JWT_REFRESH_SECRET no puede ser el valor por defecto en producción');
+const jwtSecret = env('JWT_SECRET', 'dev-secret-change-me-32chars-min!!');
+const jwtRefreshSecret = env('JWT_REFRESH_SECRET', 'dev-refresh-secret-change-me-32!!');
+
+// En producción exigir secrets reales de longitud suficiente
+if (isProduction) {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32)
+        throw new Error('JWT_SECRET debe tener al menos 32 caracteres en producción');
+    if (!process.env.JWT_REFRESH_SECRET || process.env.JWT_REFRESH_SECRET.length < 32)
+        throw new Error('JWT_REFRESH_SECRET debe tener al menos 32 caracteres en producción');
+    if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith('postgresql'))
+        throw new Error('DATABASE_URL debe ser una URL PostgreSQL válida en producción');
 }
 
 export const config = {
