@@ -58,7 +58,6 @@ app.use(helmet({
             fontSrc: ["'self'", "https:", "data:"],
             objectSrc: ["'none'"],
             frameSrc: ["'none'"],
-            upgradeInsecureRequests: config.nodeEnv === 'production' ? [] : null,
         },
     },
 }));
